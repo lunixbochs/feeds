@@ -1,6 +1,9 @@
 from flask import Flask, Response, abort, redirect, render_template, request
 from flask_pymongo import PyMongo
+import pymongo
+import json
 import os
+import hmac
 
 app = Flask('feeds')
 app.config.update({
@@ -18,7 +21,19 @@ from wtforms.validators import DataRequired
 class ExampleForm(FlaskForm):
     text = StringField('text', validators=[DataRequired()])
 
-# @app.route('/', methods=['GET', 'POST'])
+def require_auth():
+    if not hmac.compare_digest(request.form['key'], app.config[SECRET_KEY]):
+        abort(403)
+
+def clean_mongo(dict):
+    dict['ts'] = dict['ts'].timestamp()
+    if 'transcriptions' in dict:
+        dict['transcriptions'] = [clean_mongo(t) for t in dict['transcriptions']]
+    if '_id' in dict:
+        dict['id'] = str(dict['_id'])
+        del dict['_id']
+    return dict
+
 @app.route('/')
 def slash():
     obj = {'text': '', 'votes': 0}
@@ -28,6 +43,23 @@ def slash():
     form.text.data = obj['text']
     return render_template('index.html', obj=obj, form=form)
 
+@app.route('/feeds/<ObjectId:feed_id>', methods=['GET','POST'])
+def get_feed(feed_id):
+    mongo.db.feeds.find_one_or_404({'_id': feed_id})
+    if request.method == 'GET':
+        calls = mongo.db.calls.find(
+            {'feed_id': feed_id},
+            projection=['ts','transcriptions'],
+            limit=100,
+            sort=[('ts', pymongo.DESCENDING)]
+        )
+        calls = [clean_mongo(c) for c in calls]
+        return Response(json.dumps(calls), mimetype='text/json')
+    elif request.method == 'POST':
+        require_auth()
+        # TODO
+        return 'ok'
+
 @app.route('/upvote', methods=['POST'])
 def upvote():
     form = ExampleForm()
@@ -36,13 +68,13 @@ def upvote():
                                            {'$inc': {'votes': 1}, '$set': {'text': form.text.data}}, new=True, upsert=True)
     return redirect('/', code=302)
 
-'''
-@app.route('/p/<ObjectId:_id>.txt')
-@app.route('/p/<_id>')
-def get(_id):
-    paste = mongo.db.paste.find_one_or_404({'_id': _id})
-    return Response(paste['data'], mimetype='text/plain')
-'''
+@app.route('/downvote', methods=['POST'])
+def downvote():
+    form = ExampleForm()
+    if form.validate_on_submit():
+        mongo.db.votes.find_one_and_update({'post_id': 1},
+                                           {'$inc': {'votes': 1}, '$set': {'text': form.text.data}}, new=True, upsert=True)
+    return redirect('/', code=302)
 
 if __name__ == '__main__':
     app.run(port=5005, debug=True)
