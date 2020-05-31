@@ -1,0 +1,6 @@
+cffi
+ffmpeg-python
+flask
+google-cloud-speech
+redis
+webrtcvad
