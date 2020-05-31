@@ -1,6 +1,7 @@
 cffi
 ffmpeg-python
 flask
+flask-pymongo
 google-cloud-speech
 redis
 webrtcvad

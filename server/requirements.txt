@@ -1,0 +1,4 @@
+flask
+flask-pymongo
+flask-wtf
+redis

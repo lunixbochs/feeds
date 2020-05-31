@@ -1,0 +1,10 @@
+hello world
+
+votes = {{ obj.votes }}
+text = {{ obj.text }}
+
+<form action="/upvote" method="POST">
+    {{ form.csrf_token }}
+    {{ form.text_label }} {{ form.text(size=20) }}
+    <button type="submit">submit</button>
+</form>
