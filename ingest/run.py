@@ -67,4 +67,6 @@ if __name__ == '__main__':
                 sha1 = hashlib.sha1(data).hexdigest()
             with open(os.path.join(args.record, sha1 + '.mp3'), 'wb') as f:
                 f.write(data)
+            with open(os.path.join(args.record, sha1 + '.txt'), 'w') as f:
+                f.write(call.text + '\n')
         print(call.ts, call.text)
