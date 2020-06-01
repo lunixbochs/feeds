@@ -148,6 +148,9 @@ function addLogEntry(obj) {
 
 function handleLogEntry(obj) {
   calls[obj._id] = obj
+  obj.transcriptions.sort(function(a, b) {
+    return (b.upvotes - b.downvotes) > (a.upvotes - a.downvotes)
+  })
   const existing = $(`#call-${obj._id}`)
   if (existing.length) {
     updateLogEntry(existing.first(), obj)

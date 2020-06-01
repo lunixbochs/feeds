@@ -35,7 +35,9 @@ def _get_feed(feed_id, since=None, limit=200):
 @app.route('/feeds/<ObjectId:feed_id>')
 def get_feed(feed_id):
     feed = mongo.db.feeds.find_one_or_404({'_id': feed_id})
-    calls = _get_feed(feed_id)
+    calls = list(_get_feed(feed_id))
+    for call in calls:
+        call['transcriptions'].sort(key=lambda x: (x['upvotes'] - x['downvotes']), reverse=True)
     return render_template(
         'feed.html',
         feed=feed,
@@ -94,18 +96,20 @@ def suggest(call_id):
     else:
         abort(404)
 
-@app.route('/api/transcriptions/<ObjectId:transcription_id>/upvote', methods=['POST'])
+@app.route('/api/transcriptions/<ObjectId:transcription_id>/vote', methods=['POST'])
 def upvote(transcription_id):
-    result = mongo.db.calls.find_one_and_update(
-        { 'transcriptions._id': transcription_id },
-        { '$inc': { 'transcriptions.$.upvotes': 1 } },
-        return_document=pymongo.ReturnDocument.AFTER)
-    return json_response({ 'success': True, 'result': result })
-
-@app.route('/api/transcriptions/<ObjectId:transcription_id>/downvote', methods=['POST'])
-def downvote(transcription_id):
-    result = mongo.db.calls.find_one_and_update(
-        { 'transcriptions._id': transcription_id },
-        { '$inc': { 'transcriptions.$.downvotes': 1 } },
-        return_document=pymongo.ReturnDocument.AFTER)
+    vote = int(request.form.get('vote', 0))
+    if vote == 1:
+        result = mongo.db.calls.find_one_and_update(
+            { 'transcriptions._id': transcription_id },
+            { '$inc': { 'transcriptions.$.upvotes': 1 } },
+            return_document=pymongo.ReturnDocument.AFTER)
+    elif vote == -1:
+        result = mongo.db.calls.find_one_and_update(
+            { 'transcriptions._id': transcription_id },
+            { '$inc': { 'transcriptions.$.downvotes': 1 } },
+            return_document=pymongo.ReturnDocument.AFTER)
+    else:
+        abort(404)
+    print('here', result)
     return json_response({ 'success': True, 'result': result })
