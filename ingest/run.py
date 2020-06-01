@@ -27,7 +27,7 @@ if __name__ == '__main__':
     parser.add_argument('--type',         help='stream type',    type=str, choices=('audio', 'trunk'), required=True)
     parser.add_argument('--w2l',          help='w2l data path',  type=str, default='w2l')
     parser.add_argument('--record',       help='recording path', type=str)
-    parser.add_argument('stream',         help='system id or url',      type=str)
+    parser.add_argument('stream',         help='system id or url', type=str)
     args = parser.parse_args()
 
     cookie = os.getenv('BCFY_COOKIE')
