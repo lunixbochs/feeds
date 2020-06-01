@@ -2,4 +2,7 @@
 *.swp
 __pycache__
 config.local
+server/config.cfg
 ingest/out
+venv/
+.vscode
