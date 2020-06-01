@@ -1,17 +1,12 @@
+from bson import ObjectId
 from datetime import datetime
 from flask import Response, abort, redirect, render_template, request
-from flask_wtf import FlaskForm
-from wtforms import StringField
-from wtforms.validators import DataRequired
 import json
 import os
 import pymongo
 
 from .app import app, mongo
 from .utils import json_response, new_transcription, require_auth
-
-class ExampleForm(FlaskForm):
-    text = StringField('text', validators=[DataRequired()])
 
 @app.route('/')
 def feed_index():
@@ -83,16 +78,15 @@ def add_call():
     })
     return 'ok'
 
-@app.route('/suggest/<ObjectId:call_id>', methods=['POST'])
+@app.route('/api/calls/<ObjectId:call_id>/transcribe', methods=['POST'])
 def suggest(call_id):
     text = request.form.get('text', '')
     if len(text) < 3 or len(text) > 1000:
         return json_response({ 'success': False, 'reason': 'Invalid Text' })
 
-    print(new_transcription(text))
-
+    # TODO: also block duplicate submissions on the client side
     result = mongo.db.calls.update_one(
-        {'_id': call_id},
+        { '_id': call_id, 'transcriptions.text': {'$nin': [text]} },
         { '$push': { 'transcriptions': new_transcription(text, source='user') } }
     )
     if result.modified_count == 1:
@@ -100,24 +94,18 @@ def suggest(call_id):
     else:
         abort(404)
 
-@app.route('/upvote/<ObjectId:transcription_id>', methods=['POST'])
+@app.route('/api/transcriptions/<ObjectId:transcription_id>/upvote', methods=['POST'])
 def upvote(transcription_id):
-    result = mongo.db.calls.update_one(
+    result = mongo.db.calls.find_one_and_update(
         { 'transcriptions._id': transcription_id },
-        { '$inc': { 'transcriptions.$.upvotes': 1 } }
-    )
-    if result.modified_count == 1:
-        return json_response({ 'success': True })
-    else:
-        abort(404)
+        { '$inc': { 'transcriptions.$.upvotes': 1 } },
+        return_document=pymongo.ReturnDocument.AFTER)
+    return json_response({ 'success': True, 'result': result })
 
-@app.route('/downvote/<ObjectId:transcription_id>', methods=['POST'])
+@app.route('/api/transcriptions/<ObjectId:transcription_id>/downvote', methods=['POST'])
 def downvote(transcription_id):
-    result = mongo.db.calls.update_one(
+    result = mongo.db.calls.find_one_and_update(
         { 'transcriptions._id': transcription_id },
-        { '$inc': { 'transcriptions.$.downvotes': 1 } }
-    )
-    if result.modified_count == 1:
-        return json_response({ 'success': True })
-    else:
-        abort(404)
+        { '$inc': { 'transcriptions.$.downvotes': 1 } },
+        return_document=pymongo.ReturnDocument.AFTER)
+    return json_response({ 'success': True, 'result': result })
