@@ -1,3 +1,20 @@
-{% for c in calls %}
-<div> {{ c['ts'] }} {{ c['transcriptions'][0]['text'] }} </div>
-{% endfor %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/static/app.css">
+    <script src="/static/jquery-3.5.1.min.js"></script>
+    <script src="/static/app.js"></script>
+    <title>Transcription</title>
+  </head>
+  <body>
+    <h1>Feed Transcriptions</h1>
+    <ul id="entries" data-feed="{{ feed_id }}">
+      {% for c in calls %}
+        <li id="msg{{ c['_id'] }}"><time>{{ c['ts'].strftime('%-m/%d/%Y, %H:%M:%S') }}</time><span class="message">{{ c['transcriptions'][0]['text'] }}</span></li>
+      {% endfor %}
+    </ul>
+  </div>
+  </body>
+</html>

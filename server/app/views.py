@@ -40,7 +40,7 @@ def _get_feed(feed_id):
 @app.route('/feeds/<ObjectId:feed_id>')
 def get_feed(feed_id):
     calls = _get_feed(feed_id)
-    return render_template('feed.html', calls=calls)
+    return render_template('feed.html', feed_id=feed_id, calls=calls)
 
 @app.route('/api/feeds/<ObjectId:feed_id>', methods=['GET','POST'])
 def get_feed_text(feed_id):
