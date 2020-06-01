@@ -47,7 +47,6 @@ def slash():
 @app.route('/feeds')
 def feed_index():
     feeds = mongo.db.feeds.find()
-    #feeds = [clean_mongo(f) for f in feeds]
     return render_template('feed_index.html', feeds=feeds)
 
 def _get_feed(feed_id):
@@ -64,7 +63,7 @@ def get_feed(feed_id):
     calls = _get_feed(feed_id)
     return render_template('feed.html', calls=calls)
 
-@app.route('/feed_text/<ObjectId:feed_id>', methods=['GET','POST'])
+@app.route('/api/feeds/<ObjectId:feed_id>', methods=['GET','POST'])
 def get_feed_text(feed_id):
     if request.method == 'GET':
         calls = _get_feed(feed_id)
@@ -72,6 +71,10 @@ def get_feed_text(feed_id):
         return Response(json.dumps(calls), mimetype='text/json')
     elif request.method == 'POST':
         require_auth()
+
+        feed = mongo.db.feeds.find_one_or_404({'_id': feed_id})
+        #mongod.db.calls.insertMany( TKTK )
+
         # TODO
         return 'ok'
 
