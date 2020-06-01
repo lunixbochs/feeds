@@ -28,4 +28,14 @@ def require_auth():
     if not hmac.compare_digest(request.form['key'], app.config['API_KEY']):
         abort(403)
 
+def new_transcription(text):
+    return ({
+        '_id': bson.ObjectId(),
+        'ts': datetime.utcnow(),
+        'text': text,
+        'upvotes': 0,
+        'downvotes': 0,
+        'source': 'user',
+    })
+
 from .app import app

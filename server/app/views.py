@@ -7,7 +7,7 @@ import os
 import pymongo
 
 from .app import app, mongo
-from .utils import json_response, require_auth
+from .utils import json_response, new_transcription, require_auth
 
 class ExampleForm(FlaskForm):
     text = StringField('text', validators=[DataRequired()])
@@ -31,7 +31,8 @@ def _get_feed(feed_id):
     mongo.db.feeds.find_one_or_404({'_id': feed_id})
     return mongo.db.calls.find(
         {'feed_id': feed_id},
-        projection=['ts','transcriptions'],
+        projection=['ts','transcriptions._id','transcriptions.ts','transcriptions.text',
+            'transcriptions.upvotes','transcriptions.downvotes','transcriptions.source'],
         limit=200,
         sort=[('ts', pymongo.DESCENDING)]
     )
@@ -54,6 +55,23 @@ def get_feed_text(feed_id):
 
         # TODO
         return 'ok'
+
+@app.route('/suggest/<ObjectId:call_id>', methods=['POST'])
+def suggest(call_id):
+    text = request.form.get('text', '')
+    if len(text) < 3 or len(text) > 1000:
+        return json_response({ 'success': False, 'reason': 'Invalid Text' })
+
+    print(new_transcription(text))
+
+    result = mongo.db.calls.update_one(
+        {'_id': call_id},
+        { '$push': { 'transcriptions': new_transcription(text) } }
+    )
+    if result.modified_count == 1:
+        return json_response({ 'success': True }) #TODO?
+    else:
+        abort(404)
 
 @app.route('/upvote/<ObjectId:transcription_id>', methods=['POST'])
 def upvote(transcription_id):
