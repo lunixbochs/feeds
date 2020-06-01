@@ -81,8 +81,8 @@ function createLogEntry(obj) {
   const logEntry = $('<li class="call" />')
   logEntry.attr('id', `call-${obj._id}`)
   logEntry.data('id', obj._id)
+  const toggle = $('<div class="buttons button toggle">🔊</div>')
   const time = $('<time />').text(timeFormatter.format(new Date(obj.ts * 1000)))
-  const toggle = $('<div class="buttons button toggle">📑</div>')
   const callContent = $('<div class="message" />')
   if (openCalls[obj._id]) {
     // Build up a list of transcriptions and links for them.
@@ -110,7 +110,7 @@ function createLogEntry(obj) {
   } else {
     callContent.text(obj.transcriptions[0].text)
   }
-  logEntry.append(time).append(toggle).append(callContent)
+  logEntry.append(toggle).append(time).append(callContent)
   return logEntry
 }
 
