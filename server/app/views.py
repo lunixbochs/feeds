@@ -2,7 +2,6 @@ from flask import Response, abort, redirect, render_template, request
 from flask_wtf import FlaskForm
 from wtforms import StringField
 from wtforms.validators import DataRequired
-import hmac
 import json
 import os
 import pymongo
