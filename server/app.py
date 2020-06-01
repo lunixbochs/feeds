@@ -1,9 +1,11 @@
 from flask import Flask, Response, abort, redirect, render_template, request
 from flask_pymongo import PyMongo
-import pymongo
+import hmac
 import json
 import os
-import hmac
+import pymongo
+
+from utils import json_response
 
 app = Flask('feeds')
 app.config.update({
@@ -24,16 +26,6 @@ class ExampleForm(FlaskForm):
 def require_auth():
     if not hmac.compare_digest(request.form['key'], app.config[SECRET_KEY]):
         abort(403)
-
-def clean_mongo(dict):
-    if 'ts' in dict:
-        dict['ts'] = dict['ts'].timestamp()
-    if 'transcriptions' in dict:
-        dict['transcriptions'] = [clean_mongo(t) for t in dict['transcriptions']]
-    if '_id' in dict:
-        dict['id'] = str(dict['_id'])
-        del dict['_id']
-    return dict
 
 @app.route('/')
 def slash():
@@ -67,8 +59,7 @@ def get_feed(feed_id):
 def get_feed_text(feed_id):
     if request.method == 'GET':
         calls = _get_feed(feed_id)
-        calls = [clean_mongo(c) for c in calls]
-        return Response(json.dumps(calls), mimetype='text/json')
+        return json_response(calls)
     elif request.method == 'POST':
         require_auth()
 
