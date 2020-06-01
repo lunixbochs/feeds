@@ -18,12 +18,15 @@
     <h1>Feed - {{ feed.name }}</h1>
     <a href="/">&lt- list</a>
 
+    <script type="text/javascript">
+        document.write(`
     <p>Help us improve our transcriptions! Click the buttons to let us know:</p>
     <ul>
       <li>🔊 to listen and fix a transcription</li>
       <li>👍 if a transcription is accurate</li>
       <li>👎 if a transcription is inaccurate</li>
-    </ul>
+    </ul>`)
+    </script>
 
     <ul id="entries">
       {% for c in calls %}
