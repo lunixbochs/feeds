@@ -26,7 +26,8 @@ def require_auth():
         abort(403)
 
 def clean_mongo(dict):
-    dict['ts'] = dict['ts'].timestamp()
+    if 'ts' in dict:
+        dict['ts'] = dict['ts'].timestamp()
     if 'transcriptions' in dict:
         dict['transcriptions'] = [clean_mongo(t) for t in dict['transcriptions']]
     if '_id' in dict:
@@ -42,6 +43,12 @@ def slash():
     form = ExampleForm()
     form.text.data = obj['text']
     return render_template('index.html', obj=obj, form=form)
+
+@app.route('/feeds')
+def feed_index():
+    feeds = mongo.db.feeds.find()
+    #feeds = [clean_mongo(f) for f in feeds]
+    return render_template('feed_index.html', feeds=feeds)
 
 @app.route('/feeds/<ObjectId:feed_id>', methods=['GET','POST'])
 def get_feed(feed_id):
