@@ -69,7 +69,7 @@ def suggest(call_id):
         { '$push': { 'transcriptions': new_transcription(text) } }
     )
     if result.modified_count == 1:
-        return json_response({ 'success': True }) #TODO?
+        return json_response({ 'success': True })
     else:
         abort(404)
 
