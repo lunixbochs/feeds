@@ -22,8 +22,9 @@ def cachebust(filename):
     path = os.path.join(app.static_folder, filename)
     with open(path, 'rb') as f:
         sha1 = hashlib.sha1(f.read()).hexdigest()
-    _static_cache[filename] = sha1
-    return filename + '?' + sha1
+    busted = filename + '?' + sha1
+    _static_cache[filename] = busted
+    return busted
 
 @app.before_first_request
 def setup_indexes():
