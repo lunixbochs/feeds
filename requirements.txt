@@ -5,3 +5,4 @@ flask-pymongo
 google-cloud-speech
 redis
 webrtcvad
+pydub
