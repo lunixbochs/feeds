@@ -54,9 +54,19 @@ function getTranscriptionButtons(transcription) {
 }
 
 function handleToggle(evt) {
-  const callId = getCallFromElement(evt.target)
-  openCalls[callId] = !openCalls[callId]
-  handleLogEntry(calls[callId]) // Refresh the UI.
+  const clickedId = getCallFromElement(evt.target)
+  var wasOpen = [];
+  $.each(openCalls, function(callId, value) {
+    if (value && callId != clickedId) {
+      wasOpen.push(callId);
+    }
+  });
+  openCalls[clickedId] = !openCalls[clickedId]
+  handleLogEntry(calls[clickedId]) // Refresh the UI.
+  $.each(wasOpen, function(idx, callId) {
+    openCalls[callId] = false;
+    handleLogEntry(calls[callId]);
+  });
 }
 
 function handleVote(evt) {
