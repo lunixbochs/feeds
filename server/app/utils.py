@@ -19,3 +19,9 @@ def json_encode(j):
 
 def json_response(d):
     return Response(json_encode(d), mimetype='text/json')
+
+def require_auth():
+    if not hmac.compare_digest(request.form['key'], app.config[SECRET_KEY]):
+        abort(403)
+
+from .app import app

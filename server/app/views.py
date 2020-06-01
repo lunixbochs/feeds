@@ -1,34 +1,21 @@
-from flask import Flask, Response, abort, redirect, render_template, request
-from flask_pymongo import PyMongo
+from flask import Response, abort, redirect, render_template, request
+from flask_wtf import FlaskForm
+from wtforms import StringField
+from wtforms.validators import DataRequired
 import hmac
 import json
 import os
 import pymongo
 
-from utils import json_response
-
-app = Flask('feeds')
-app.config.update({
-    'MONGO_URI': 'mongodb://localhost:27017/feeds',
-    'SECRET_KEY': os.urandom(16).hex(),
-})
-if 'FLASK_SETTINGS' in os.environ:
-    app.config.from_envvar('FLASK_SETTINGS')
-mongo = PyMongo(app)
-
-from flask_wtf import FlaskForm
-from wtforms import StringField
-from wtforms.validators import DataRequired
+from .app import app, mongo
+from .utils import json_response, require_auth
 
 class ExampleForm(FlaskForm):
     text = StringField('text', validators=[DataRequired()])
 
-def require_auth():
-    if not hmac.compare_digest(request.form['key'], app.config[SECRET_KEY]):
-        abort(403)
-
 @app.route('/')
 def slash():
+    print('slash')
     obj = {'text': '', 'votes': 0}
     vote_obj = mongo.db.votes.find_one({'post_id': 1})
     if vote_obj: obj = vote_obj
@@ -84,6 +71,3 @@ def downvote():
         mongo.db.votes.find_one_and_update({'post_id': 1},
                                            {'$inc': {'votes': 1}, '$set': {'text': form.text.data}}, new=True, upsert=True)
     return redirect('/', code=302)
-
-if __name__ == '__main__':
-    app.run(port=5005, debug=True)
