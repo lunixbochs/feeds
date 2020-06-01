@@ -14,6 +14,7 @@ let toolboxEle
 const calls = {}
 const openCalls = {}
 const votes = {}
+var activeCall = -1;
 
 $(function() {
   $('#entries').on('click', '.toggle', handleToggle)
@@ -112,8 +113,8 @@ function createLogEntry(obj) {
     const customForm = $('<form />')
     const customEntry = $('<input type="text" />')
     customEntry.attr('value', obj.transcriptions[0].text)
-    customForm.append(customEntry)
     customForm.append($('<button submit>Save</button>'))
+    customForm.append(customEntry)
     customTranscription.append(customForm)
     tList.append(customTranscription)
 
@@ -121,10 +122,13 @@ function createLogEntry(obj) {
 
     const audio = $('<audio controls />')
     audio.attr('src', obj.audio_url);
-    audio.trigger('play');
     callContent.append(audio);
 
     toggle.addClass('active')
+    if (obj._id != activeCall) {
+      audio.trigger('play');
+    }
+    activeCall = obj._id;
   } else {
     callContent.text(obj.transcriptions[0].text)
   }
