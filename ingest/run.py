@@ -97,6 +97,7 @@ if __name__ == '__main__':
                 f.write(data)
             with open(os.path.join(args.record, sha1 + '.txt'), 'w') as f:
                 f.write(call.text + '\n')
+            os.unlink(path)
         print(call.ts, call.text)
         if server_url and API_KEY and args.recordurl:
             req_json = {
