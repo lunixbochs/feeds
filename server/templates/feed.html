@@ -30,7 +30,7 @@
             <time>{{ c['ts'].strftime('%-m/%d/%Y, %H:%M:%S') }}</time>
             {# <span class="audio"><audio controls src="{{ c.audio_url }}" preload="none"></audio></span> #}
             <span class="message" data-id="{{ c['transcriptions'][0]['_id'] }}">
-                {{ c['transcriptions'][0]['text'] }} foo bar baz foo bar baz foo bar baz
+                {{ c['transcriptions'][0]['text'] }}
             </span>
         </li>
       {% endfor %}
