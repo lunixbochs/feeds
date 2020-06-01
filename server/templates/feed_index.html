@@ -1,0 +1,3 @@
+{% for feed in feeds %}
+<div><a href="/feeds/{{ feed['_id'] }}"> {{ feed['name'] }} </a></div>
+{% endfor %}
