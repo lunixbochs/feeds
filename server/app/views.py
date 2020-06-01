@@ -10,6 +10,9 @@ import pymongo
 from .app import app, mongo
 from .utils import json_response, new_transcription, require_auth
 
+class ExampleForm(FlaskForm):
+    text = StringField('text', validators=[DataRequired()])
+
 @app.route('/')
 def slash():
     obj = {'text': '', 'votes': 0}
