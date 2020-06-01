@@ -118,6 +118,12 @@ function createLogEntry(obj) {
     tList.append(customTranscription)
 
     callContent.append(tList)
+
+    const audio = $('<audio controls />')
+    audio.attr('src', obj.audio_url);
+    audio.trigger('play');
+    callContent.append(audio);
+
     toggle.addClass('active')
   } else {
     callContent.text(obj.transcriptions[0].text)
