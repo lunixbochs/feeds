@@ -1,6 +1,5 @@
 from flask import Flask, Response, abort, redirect, render_template, request
 from flask_pymongo import PyMongo
-import hmac
 import json
 import os
 import pymongo
