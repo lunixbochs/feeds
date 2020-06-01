@@ -1,7 +1,7 @@
 // const streamEvtSrc = new EventSource('eventsrc')
 
 // in milliseconds
-const pollFrequency = 1000
+const pollFrequency = 5000
 const timeFormat = {
   year: 'numeric', month: 'numeric', day: 'numeric',
   hour: 'numeric', minute: 'numeric', second: 'numeric',
