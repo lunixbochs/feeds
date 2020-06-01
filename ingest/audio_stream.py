@@ -24,10 +24,13 @@ class Call:
     text: str
 
 def poll_thread(p):
+    start = time.monotonic()
     while True:
         if p.poll() is not None:
             break
         time.sleep(1)
+        if time.monotonic() - start > 60 * 60:
+            p.kill()
 
 def stream(url, verbose=False):
     while True:
