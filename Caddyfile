@@ -4,7 +4,7 @@ feeds.talonvoice.com/static/* {
 }
 
 feeds.talonvoice.com/audio/* {
-    root * /data/www
+    root * /data
     file_server
 }
 
