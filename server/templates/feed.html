@@ -5,16 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="/static/app.css">
     <script src="/static/jquery-3.5.1.min.js"></script>
+    <script>
+      const pageSettings = {
+        feedId: {{ feed_id|tojson|safe }},
+        lastTimestamp: {{ last_timestamp|tojson|safe }},
+      }
+    </script>
     <script src="/static/app.js"></script>
     <title>Transcription</title>
   </head>
   <body>
     <h1>Feed Transcriptions</h1>
-    <ul id="entries" data-feed="{{ feed_id }}">
+
+    <p>Help us improve our transcriptions! Click the buttons to let us know:</p>
+    <ul>
+      <li>📑 to see multiple transcriptions or fix the transcription</li>
+      <li>👍 if a transcription is accurate</li>
+      <li>👎 if a transcription is inaccurate</li>
+    </ul>
+
+    <ul id="entries">
       {% for c in calls %}
-        <li id="msg{{ c['_id'] }}"><time>{{ c['ts'].strftime('%-m/%d/%Y, %H:%M:%S') }}</time><span class="message">{{ c['transcriptions'][0]['text'] }}</span></li>
+        <li class="call" id="call-{{ c['_id'] }}" data-id="{{ c['_id'] }} "><time>{{ c['ts'].strftime('%-m/%d/%Y, %H:%M:%S') }}</time><span class="message" data-id="{{ c['transcriptions'][0]['_id'] }}">{{ c['transcriptions'][0]['text'] }} foo bar baz foo bar baz foo bar baz</span></li>
       {% endfor %}
     </ul>
-  </div>
   </body>
 </html>
