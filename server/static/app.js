@@ -19,16 +19,18 @@ $(function() {
   $('#entries').on('click', '.toggle', handleToggle)
   $('#entries').on('click', '.vote.buttons', handleVote)
   $('#entries').on('submit', handleCustomTranscription)
-  setInterval(function() {
+  var update = function() {
     $.getJSON(`/api/feeds/${pageSettings.feedId}`, {
       since: lastTimestamp,
-      limit: 100
+      limit: 200
     }, function(messages) {
       $.each(messages, function(_idx, message) {
         handleLogEntry(message)
       })
     })
-  }, pollFrequency)
+  }
+  setInterval(update, pollFrequency)
+  update()
 })
 
 function getCallFromElement(ele) {
