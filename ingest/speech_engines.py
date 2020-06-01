@@ -32,3 +32,7 @@ class gcpengine:
         for result in response.results:
             alternative = result.alternatives[0]
             return alternative.transcript
+
+class nullengine:
+    def decode(self, samples):
+        return 'null transcription: {}s'.format(len(samples) / 16000)

@@ -1,10 +1,13 @@
+from dataclasses import dataclass, field
+from datetime import datetime
+import io
+import json
+import logging
+import math
+import pydub
 import random
 import requests
-from datetime import datetime
-import math
-import json
 import time
-from dataclasses import dataclass, field
 
 ENDPOINT = 'https://www.broadcastify.com/calls/apis/livecall.php'
 TAGS = {
@@ -43,7 +46,11 @@ TAGS = {
 
 @dataclass
 class Call:
+    # these four properties shared with audio_stream.Call
     ts: datetime
+    duration: float
+    audio_segment: pydub.AudioSegment
+    text: str
 
     fileid: str
     encoding: str
@@ -56,10 +63,7 @@ class Call:
     display: str
     grouping: str
     description: str
-
-    duration: float
     freq: float
-
     json: dict = field(repr=False)
 
     @property
@@ -72,7 +76,7 @@ class Call:
             fileid=call['filename'],
             encoding=call['enc'],
             system=call['systemId'],
-            
+
             tag=TAGS[int(call['tag'])],
             talkgroup=int(call['call_tg']),
             call_src=int(call['call_src']),
@@ -83,7 +87,9 @@ class Call:
 
             duration=float(call['call_duration']),
             freq=float(call['tag']),
-            
+            audio_segment=None,
+            text='',
+
             json=call)
 
 class BroadcastifyCallSystem:
@@ -98,8 +104,11 @@ class BroadcastifyCallSystem:
     def calls(self):
         while True:
             start = time.monotonic()
-            for call in self._poll():
-                yield Call.from_json(call)
+            try:
+                for call in self._poll():
+                    yield Call.from_json(call)
+            except Exception:
+                logging.exception('failed to fetch calls')
             remain = 5 - (time.monotonic() - start)
             if remain > 0.1:
                 time.sleep(remain)
@@ -134,3 +143,18 @@ class BroadcastifyCallSystem:
             key += '{:x}'.format((random.getrandbits(4) & 0x3) | 0x8)
 
         return key
+
+def scraper_thread(call_system, call_queue):
+    for call in call_system.calls():
+        try:
+            r = requests.get(call.audio_uri)
+            r.raise_for_status()
+            audio = (pydub.AudioSegment.from_file(io.BytesIO(r.content), format=call.encoding)
+                     .set_sample_width(2)
+                     .set_channels(1)
+                     .set_frame_rate(16000))
+            call.audio_segment = audio
+            call.duration = audio.duration_seconds
+            call_queue.put(call)
+        except Exception:
+            logging.exception('failed to download: {}'.format(call.audio_uri))

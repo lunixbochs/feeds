@@ -1,17 +1,27 @@
+from dataclasses import dataclass
 from datetime import datetime
+import array
 import atexit
 import ffmpeg
 import os
-import queue
+import pydub
 import struct
 import subprocess
 import sys
 import threading
 import time
 import traceback
+import typing
 import wave
 import webrtcvad
-from speech_engines import w2lengine, gcpengine
+
+@dataclass
+class Call:
+    # these four properties shared with trunk_stream.Call
+    ts: datetime
+    duration: float
+    audio_segment: pydub.AudioSegment
+    text: str
 
 def poll_thread(p):
     while True:
@@ -52,22 +62,16 @@ def stream(url, verbose=False):
 
 def ffmpeg_thread(url, q):
     for raw_speech in stream(url):
-        date = datetime.utcnow()
-        count = len(raw_speech) // 2
-        fmt = '<{}h'.format(count)
-        int16_samples = struct.unpack(fmt, raw_speech)
-        q.put((date, int16_samples))
-
-def tts_stream(url, engine):
-    audio_queue = queue.Queue()
-    thread = threading.Thread(target=ffmpeg_thread, args=(url, audio_queue))
-    thread.start()
-
-    while True:
-        date, int16_samples = audio_queue.get()
-        text = engine.decode(int16_samples)
-        if text:
-            yield (date, text, int16_samples)
+        ts = datetime.utcnow()
+        samples = array.array('h', raw_speech)
+        segment = (pydub.AudioSegment.empty()
+                   .set_sample_width(2)
+                   .set_channels(1)
+                   .set_frame_rate(16000))
+        audio_segment = segment._spawn(samples)
+        duration = len(samples) / 16000
+        call = Call(ts=ts, audio_segment=audio_segment, duration=duration, text='')
+        q.put(call)
 
 if __name__ == '__main__':
     import argparse
