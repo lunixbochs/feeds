@@ -27,12 +27,12 @@ if __name__ == '__main__':
     parser.add_argument('--type',         help='stream type',    type=str, choices=('audio', 'trunk'), required=True)
     parser.add_argument('--w2l',          help='w2l data path',  type=str, default='w2l')
     parser.add_argument('--record',       help='recording path', type=str)
-    parser.add_argument('--cookie',       help='broadcastify auth cookie', type=str)
     parser.add_argument('stream',         help='system id or url',      type=str)
     args = parser.parse_args()
 
-    if args.type == 'trunk' and not args.cookie:
-        raise ValueError('missing cookie for trunk stream: --cookie ...')
+    cookie = os.getenv('BCFY_COOKIE')
+    if args.type == 'trunk' and not cookie:
+        raise ValueError('missing cookie for trunk stream: set BCFY_COOKIE=...')
 
     if args.engine == 'w2l':
         engine = w2lengine(args.w2l)
@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
     call_queue = queue.Queue()
     if args.type == 'trunk':
-        call_system = trunk_stream.BroadcastifyCallSystem(args.stream, args.auth, hydrate=60) # grab last 60s to fill buffer
+        call_system = trunk_stream.BroadcastifyCallSystem(args.stream, cookie, hydrate=60) # grab last 60s to fill buffer
         thread = threading.Thread(target=trunk_stream.scraper_thread, args=(call_system, call_queue))
         thread.start()
     elif args.type == 'audio':
