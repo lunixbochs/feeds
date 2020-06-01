@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Response, abort, redirect, render_template, request
 from flask_wtf import FlaskForm
 from wtforms import StringField
@@ -11,7 +12,6 @@ from .utils import json_response, new_transcription, require_auth
 
 @app.route('/')
 def slash():
-    print('slash')
     obj = {'text': '', 'votes': 0}
     vote_obj = mongo.db.votes.find_one({'post_id': 1})
     if vote_obj: obj = vote_obj
@@ -47,17 +47,25 @@ def get_feed_text(feed_id):
 @app.route('/api/calls', methods=['POST'])
 def add_call():
     require_auth()
-    f = request.form
-    feed = mongo.db.feeds.find_one_or_404({'url': f['feed_url']})
+    j = request.json
+    if 'feed_id' in j:
+        feed = mongo.db.feeds.find_one_or_404({'_id': ObjectId(j['feed_id'])})
+    elif 'feed_num' in j:
+        feed = mongo.db.feeds.find_one_or_404({'numeric_id': j['feed_num']})
+    else:
+        abort(500)
 
+    transcription = new_transcription(j['text'],
+                                      ts=datetime.fromisoformat(j['text_ts']),
+                                      source=j['text_source'])
     mongo.db.calls.insert_one({
         'feed_id': feed['_id'],
-        'ts': f['audio_ts'],
-        'audio_url': f['audio_url'],
-        'audio_length': f['audio_length'],
-        'from': f.get('from', None),
-        'to': f.get('to', None),
-        'transcriptions': [new_transcription(f['text'], f['text_ts'], f['text_source'])]
+        'ts': datetime.fromisoformat(j['ts']),
+        'audio_url': j['audio_url'],
+        'audio_length': j['audio_length'],
+        'from': j.get('from', None),
+        'to': j.get('to', None),
+        'transcriptions': [transcription]
     })
     return 'ok'
 
@@ -71,7 +79,7 @@ def suggest(call_id):
 
     result = mongo.db.calls.update_one(
         {'_id': call_id},
-        { '$push': { 'transcriptions': new_transcription(text) } }
+        { '$push': { 'transcriptions': new_transcription(text, source='user') } }
     )
     if result.modified_count == 1:
         return json_response({ 'success': True })

@@ -25,7 +25,7 @@ def require_auth():
     if not 'API_KEY' in app.config:
         app.logger.warn("API_KEY not set")
         abort(403)
-    if not hmac.compare_digest(request.form['key'], app.config['API_KEY']):
+    if not hmac.compare_digest(request.headers['authorization'], app.config['API_KEY']):
         abort(403)
 
 def new_transcription(text, ts=None, source='user'):
