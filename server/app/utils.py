@@ -21,7 +21,9 @@ def json_response(d):
     return Response(json_encode(d), mimetype='text/json')
 
 def require_auth():
-    if not hmac.compare_digest(request.form['key'], app.config[SECRET_KEY]):
+    if not 'API_KEY' in app.config:
+        sys.stderr.write("API_KEY not set\n")
+    if not hmac.compare_digest(request.form['key'], app.config[API_KEY]):
         abort(403)
 
 from .app import app
