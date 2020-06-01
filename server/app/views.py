@@ -9,9 +9,6 @@ import pymongo
 from .app import app, mongo
 from .utils import json_response, new_transcription, require_auth
 
-class ExampleForm(FlaskForm):
-    text = StringField('text', validators=[DataRequired()])
-
 @app.route('/')
 def slash():
     print('slash')
@@ -42,19 +39,27 @@ def get_feed(feed_id):
     calls = _get_feed(feed_id)
     return render_template('feed.html', feed_id=feed_id, calls=calls)
 
-@app.route('/api/feeds/<ObjectId:feed_id>', methods=['GET','POST'])
+@app.route('/api/feeds/<ObjectId:feed_id>')
 def get_feed_text(feed_id):
-    if request.method == 'GET':
-        calls = _get_feed(feed_id)
-        return json_response(calls)
-    elif request.method == 'POST':
-        require_auth()
+    calls = _get_feed(feed_id)
+    return json_response(calls)
 
-        feed = mongo.db.feeds.find_one_or_404({'_id': feed_id})
-        #mongod.db.calls.insertMany( TKTK )
+@app.route('/api/calls', methods=['POST'])
+def add_call():
+    require_auth()
+    f = request.form
+    feed = mongo.db.feeds.find_one_or_404({'url': f['feed_url']})
 
-        # TODO
-        return 'ok'
+    mongo.db.calls.insert_one({
+        'feed_id': feed['_id'],
+        'ts': f['audio_ts'],
+        'audio_url': f['audio_url'],
+        'audio_length': f['audio_length'],
+        'from': f.get('from', None),
+        'to': f.get('to', None),
+        'transcriptions': [new_transcription(f['text'], f['text_ts'], f['text_source'])]
+    })
+    return 'ok'
 
 @app.route('/suggest/<ObjectId:call_id>', methods=['POST'])
 def suggest(call_id):
