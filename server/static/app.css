@@ -1,8 +1,39 @@
 body {
-  margin: 0 auto;
+  margin: 0 1rem;
 }
 
-#entries time {
-  margin-right: 1rem;
+#entries, .transcriptions {
+  padding: 0;
+}
+
+#entries li {
+  display: flex;
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0.25rem 0;
+  border-top: 1px dashed #ccc;
+}
+
+.buttons {
+  font-size: 1.5rem;
+  flex-grow: 0;
+  flex-shrink: 0;
+  display: flex; /* Removes spaces between elements */
+}
+
+.button {
+  cursor: pointer;
+  opacity: 0.5;
+}
+
+.button:hover, .button.active {
+  opacity: 1;
+}
+
+time {
   font-family: monospace;
+  white-space: nowrap;
+  display: block;
+  height: 1.5rem;
+  line-height: 1.5rem;
 }
