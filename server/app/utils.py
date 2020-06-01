@@ -4,7 +4,6 @@ import bson
 import hmac
 import json
 import pymongo
-import sys
 import time
 
 def _json_unknown(obj):
@@ -24,7 +23,7 @@ def json_response(d):
 
 def require_auth():
     if not 'API_KEY' in app.config:
-        sys.stderr.write("API_KEY not set\n")
+        app.logger.warn("API_KEY not set")
         abort(403)
     if not hmac.compare_digest(request.form['key'], app.config['API_KEY']):
         abort(403)
