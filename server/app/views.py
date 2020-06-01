@@ -27,13 +27,15 @@ def feed_index():
     feeds = mongo.db.feeds.find()
     return render_template('feed_index.html', feeds=feeds)
 
-def _get_feed(feed_id):
-    mongo.db.feeds.find_one_or_404({'_id': feed_id})
+def _get_feed(feed_id, since=None, limit=200):
+    query = {'feed_id': feed_id}
+    if since is not None:
+        query['ts'] = {'$gte': since}
     return mongo.db.calls.find(
-        {'feed_id': feed_id},
-        projection=['ts','transcriptions._id','transcriptions.ts','transcriptions.text',
-            'transcriptions.upvotes','transcriptions.downvotes','transcriptions.source'],
-        limit=200,
+        query,
+        projection=['ts', 'audio_url', 'transcriptions._id', 'transcriptions.ts', 'transcriptions.text',
+            'transcriptions.upvotes', 'transcriptions.downvotes', 'transcriptions.source'],
+        limit=limit,
         sort=[('ts', pymongo.DESCENDING)]
     )
 
@@ -44,7 +46,11 @@ def get_feed(feed_id):
 
 @app.route('/api/feeds/<ObjectId:feed_id>')
 def get_feed_text(feed_id):
-    calls = _get_feed(feed_id)
+    since = None
+    if 'since' in request.args:
+        since = datetime.utcfromtimestamp(int(request.args['since']))
+    limit = min(200, int(request.args.get('limit', 200)))
+    calls = _get_feed(feed_id, since=since, limit=limit)
     return json_response(calls)
 
 @app.route('/api/calls', methods=['POST'])

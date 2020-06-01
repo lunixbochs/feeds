@@ -11,7 +11,7 @@ const timeFormat = {
 const timeFormatter = new Intl.DateTimeFormat('en-US', timeFormat)
 let lastTimestamp = 0
 
-$(function() {
+$(document).ready(function() {
   const feedId = $('#entries').first().data('feed')
   setInterval(function() {
     $.getJSON(`/api/feeds/${feedId}`, {
@@ -29,8 +29,10 @@ function createLogEntry(obj) {
   const logEntry = $('<li />')
   logEntry.attr('id', `msg${obj._id}`)
   const time = $('<time />').text(timeFormatter.format(new Date(obj.ts * 1000)))
+  const audio = $('<audio controls preload="none" />');
+  audio.attr('src', obj.audio_url);
   const msg = $('<span class="message" />').text(obj.transcriptions[0].text)
-  logEntry.append(time).append(msg)
+  logEntry.append(time).append(audio).append(msg)
   return logEntry
 }
 
@@ -51,6 +53,5 @@ function handleLogEntry(obj) {
   } else {
     addLogEntry(obj)
   }
-
   if (obj.ts > lastTimestamp) { lastTimestamp = obj.ts }
 }

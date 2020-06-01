@@ -27,6 +27,7 @@ if __name__ == '__main__':
     parser.add_argument('--type',         help='stream type',      type=str, choices=('audio', 'trunk'), required=True)
     parser.add_argument('--w2l',          help='w2l path or url',  type=str, default='w2l')
     parser.add_argument('--record',       help='recording path',   type=str)
+    parser.add_argument('--recordurl',    help='recording url',    type=str)
     parser.add_argument('--publish',      help='publish url',      type=str)
     parser.add_argument('--feed',         help='mongo feed id',    type=str)
     parser.add_argument('stream',         help='system id or url', type=str)
@@ -70,6 +71,8 @@ if __name__ == '__main__':
     if args.publish:
         if not API_KEY:
             logging.warning('API_KEY not set: not publishing ingested calls')
+        if not args.recordurl:
+            logging.warning('--recordurl not set: not publishing ingested calls')
         server_url = '{}/api/calls'.format(args.publish.rstrip('/'))
         feed_json = {}
         if args.feed:
@@ -95,14 +98,19 @@ if __name__ == '__main__':
             with open(os.path.join(args.record, sha1 + '.txt'), 'w') as f:
                 f.write(call.text + '\n')
         print(call.ts, call.text)
-        if server_url and API_KEY:
+        if server_url and API_KEY and args.recordurl:
             req_json = {
                 'ts': call.ts.isoformat(),
                 'audio_length': call.duration,
-                'audio_url': sha1 + '.mp3',
+                'audio_url': '{}/{}.mp3'.format(args.recordurl.rstrip('/'), sha1),
                 'text': call.text,
                 'text_ts': call.ts.isoformat(),
                 'text_source': args.engine,
+                'from': getattr(call, 'from', ''),
+                'to':   getattr(call, 'to', ''),
             }
             req_json.update(feed_json)
-            requests.post(server_url, json=req_json, headers={'Authorization': API_KEY})
+            try:
+                requests.post(server_url, json=req_json, headers={'Authorization': API_KEY})
+            except Exception:
+                logging.exception('could not post audio')

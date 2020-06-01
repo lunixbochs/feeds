@@ -12,7 +12,11 @@
     <h1>Feed Transcriptions</h1>
     <ul id="entries" data-feed="{{ feed_id }}">
       {% for c in calls %}
-        <li id="msg{{ c['_id'] }}"><time>{{ c['ts'].strftime('%-m/%d/%Y, %H:%M:%S') }}</time><span class="message">{{ c['transcriptions'][0]['text'] }}</span></li>
+        <li id="msg{{ c._id }}">
+            <time>{{ c.ts.strftime('%-m/%d/%Y, %H:%M:%S') }}</time>
+            {# <span class="audio"><audio controls src="{{ c.audio_url }}" preload="none"></audio></span> #}
+            <span class="message">{{ c.transcriptions[0].text }}</span>
+        </li>
       {% endfor %}
     </ul>
   </div>
