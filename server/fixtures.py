@@ -72,6 +72,7 @@ def make_call(feed_id, text):
         'to':   str(random.randint(1000, 9999)),
         'transcriptions': [
             {
+                '_id': ObjectId(),
                 'ts': datetime.utcnow(),
                 'text': text,
                 'upvotes': random.randint(0, 3),
@@ -79,6 +80,7 @@ def make_call(feed_id, text):
                 'source': 'google',
             },
             {
+                '_id': ObjectId(),
                 'ts': datetime.utcnow(),
                 'text': text.lower(),
                 'upvotes': random.randint(0, 3),
@@ -99,6 +101,9 @@ if __name__ == '__main__':
     from pymongo import MongoClient
     client = MongoClient()
     db = client.feeds
+
+    db.feeds.drop()
+    db.calls.drop()
 
     for feed in feeds:
         db.feeds.insert_one(feed)

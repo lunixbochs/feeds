@@ -55,18 +55,24 @@ def get_feed_text(feed_id):
         # TODO
         return 'ok'
 
-@app.route('/upvote', methods=['POST'])
-def upvote():
-    form = ExampleForm()
-    if form.validate_on_submit():
-        mongo.db.votes.find_one_and_update({'post_id': 1},
-                                           {'$inc': {'votes': 1}, '$set': {'text': form.text.data}}, new=True, upsert=True)
-    return redirect('/', code=302)
+@app.route('/upvote/<ObjectId:transcription_id>', methods=['POST'])
+def upvote(transcription_id):
+    result = mongo.db.calls.update_one(
+        { 'transcriptions._id': transcription_id },
+        { '$inc': { 'transcriptions.$.upvotes': 1 } }
+    )
+    if result.modified_count == 1:
+        return json_response({ 'success': True })
+    else:
+        abort(404)
 
-@app.route('/downvote', methods=['POST'])
-def downvote():
-    form = ExampleForm()
-    if form.validate_on_submit():
-        mongo.db.votes.find_one_and_update({'post_id': 1},
-                                           {'$inc': {'votes': 1}, '$set': {'text': form.text.data}}, new=True, upsert=True)
-    return redirect('/', code=302)
+@app.route('/downvote/<ObjectId:transcription_id>', methods=['POST'])
+def downvote(transcription_id):
+    result = mongo.db.calls.update_one(
+        { 'transcriptions._id': transcription_id },
+        { '$inc': { 'transcriptions.$.downvotes': 1 } }
+    )
+    if result.modified_count == 1:
+        return json_response({ 'success': True })
+    else:
+        abort(404)
