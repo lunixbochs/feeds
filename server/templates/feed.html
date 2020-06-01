@@ -28,6 +28,7 @@
     <ul id="entries">
       {% for c in calls %}
         <li class="call" id="call-{{ c['_id'] }}" data-id="{{ c['_id'] }} ">
+            <div class="buttons button toggle">🔊</div>
             <time>{{ c['ts'].strftime('%-m/%d/%Y, %H:%M:%S') }}</time>
             {# <span class="audio"><audio controls src="{{ c.audio_url }}" preload="none"></audio></span> #}
             <span class="message" data-id="{{ c['transcriptions'][0]['_id'] }}">
