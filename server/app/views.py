@@ -14,17 +14,15 @@ class ExampleForm(FlaskForm):
     text = StringField('text', validators=[DataRequired()])
 
 @app.route('/')
-def slash():
-    obj = {'text': '', 'votes': 0}
-    vote_obj = mongo.db.votes.find_one({'post_id': 1})
-    if vote_obj: obj = vote_obj
-    form = ExampleForm()
-    form.text.data = obj['text']
-    return render_template('index.html', obj=obj, form=form)
-
-@app.route('/feeds')
 def feed_index():
-    feeds = mongo.db.feeds.find()
+    feeds = list(mongo.db.feeds.find())
+    # TODO: aggregate or something instead of doing N extra queries
+    for feed in feeds:
+        feed['newest_call'] = mongo.db.calls.find_one(
+            {'feed_id': feed['_id']},
+            projection=['ts'],
+            sort=[('ts', pymongo.DESCENDING)])
+    feeds.sort(key=lambda x: x['name'])
     return render_template('feed_index.html', feeds=feeds)
 
 def _get_feed(feed_id, since=None, limit=200):
@@ -41,9 +39,11 @@ def _get_feed(feed_id, since=None, limit=200):
 
 @app.route('/feeds/<ObjectId:feed_id>')
 def get_feed(feed_id):
+    feed = mongo.db.feeds.find_one_or_404({'_id': feed_id})
     calls = _get_feed(feed_id)
     return render_template(
         'feed.html',
+        feed=feed,
         feed_id=str(feed_id),
         last_timestamp=0,
         calls=calls,
