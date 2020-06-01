@@ -1,4 +1,4 @@
-from speech_engines import gcpengine, w2lengine, nullengine
+from speech_engines import gcp_engine, w2l_engine, web2letter_engine, null_engine
 import audio_stream
 import hashlib
 import tempfile
@@ -17,16 +17,14 @@ def tts_stream(queue, engine):
         if text:
             call.text = text
             yield call
-        else:
-            print('no text', call.duration)
 
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('--engine', '-e', help='engine to use',  type=str, choices=('gcp', 'w2l', 'none'), default='w2l')
-    parser.add_argument('--type',         help='stream type',    type=str, choices=('audio', 'trunk'), required=True)
-    parser.add_argument('--w2l',          help='w2l data path',  type=str, default='w2l')
-    parser.add_argument('--record',       help='recording path', type=str)
+    parser.add_argument('--engine', '-e', help='engine to use',    type=str, choices=('gcp', 'w2l', 'web2letter', 'none'), default='w2l')
+    parser.add_argument('--type',         help='stream type',      type=str, choices=('audio', 'trunk'), required=True)
+    parser.add_argument('--w2l',          help='w2l path or url',  type=str, default='w2l')
+    parser.add_argument('--record',       help='recording path',   type=str)
     parser.add_argument('stream',         help='system id or url', type=str)
     args = parser.parse_args()
 
@@ -35,11 +33,15 @@ if __name__ == '__main__':
         raise ValueError('missing cookie for trunk stream: set BCFY_COOKIE=...')
 
     if args.engine == 'w2l':
-        engine = w2lengine(args.w2l)
+        engine = w2l_engine(args.w2l)
+    elif args.engine == 'web2letter':
+        if not args.w2l.startswith(('http://', 'https://')):
+            raise ValueError('please specify a web2letter server with --w2l https://url...')
+        engine = web2letter_engine(args.w2l)
     elif args.engine == 'gcp':
-        engine = gcpengine()
+        engine = gcp_engine()
     elif args.engine == 'none':
-        engine = nullengine()
+        engine = null_engine()
     else:
         raise RuntimeError('unknown engine {}'.format(args.engine))
 
