@@ -14,9 +14,28 @@ body {
   border-top: 1px dashed #ccc;
 }
 
+#entries li li:first-child {
+  border: none;
+}
+
 .message {
   padding-left: 1rem;
   line-height: 1.5rem;
+  width: 100%;
+  max-width: 100ex;
+}
+
+input[type=text] {
+  margin-left: 1ex;
+  flex-grow: 1;
+}
+
+form {
+  display: flex;
+}
+
+form, audio {
+  width: 100%;
 }
 
 .buttons {
@@ -33,6 +52,15 @@ body {
 
 .button:hover, .button.active {
   opacity: 1;
+}
+
+.source-icon {
+  width: 1.5em;
+}
+
+.score {
+  min-width: 4ex;
+  text-align: right;
 }
 
 time {
