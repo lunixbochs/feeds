@@ -2,6 +2,26 @@ body {
   margin: 0 1rem;
 }
 
+h3, h4 {
+  margin-bottom: 0;
+}
+.feed-list {
+  margin: 0;
+  padding-left: 1rem;
+}
+.feed-list > span {
+  font-style: italic;
+}
+
+.feed-help > p {
+  margin-bottom: 0;
+}
+.feed-help > ul {
+  margin: 0;
+  list-style-type: none;
+  padding: 0 1rem;
+}
+
 #entries, .transcriptions {
   padding: 0;
 }

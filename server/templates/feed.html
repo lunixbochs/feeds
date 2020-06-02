@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -12,21 +12,23 @@
       }
     </script>
     <script src="/static/{{ 'app.js'|cachebust }}"></script>
-    <title>Feed - {{ feed.name }}</title>
+    <title>Scanner - {{ feed.name }}</title>
   </head>
   <body>
     <div id="alert-box" style="display: none"></div>
-    <h1>Feed - {{ feed.name }}</h1>
-    <a href="/">&lt- list</a>
+    <h3>Scanner - {{ feed.name }}</h1>
+    <a href="/">&lt- feed list</a>
 
     <script type="text/javascript">
         document.write(`
+    <div class="feed-help">
     <p>Help us improve our transcriptions! Click the buttons to let us know:</p>
     <ul>
       <li>🔊 to listen and fix a transcription</li>
       <li>👍 if a transcription is accurate</li>
       <li>👎 if a transcription is inaccurate</li>
-    </ul>`)
+    </ul>
+    </div>`)
     </script>
 
     <ul id="entries">

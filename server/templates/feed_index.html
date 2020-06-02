@@ -1,3 +1,56 @@
-{% for feed in feeds %}
-<div><a href="/feeds/{{ feed['_id'] }}"> {{ feed['name'] }} </a></div>
-{% endfor %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Radio Scanner Text Feeds</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="keywords" content="speech recognition, radio, scanner, speech to text" />
+    <meta name="description" content="Transcribed radio scanner feeds." />
+    <link rel="stylesheet" type="text/css" href="/static/{{ 'app.css'|cachebust }}" />
+  </head>
+  <body>
+    <h4>Radio Scanner Text Feeds</h4>
+    <p>This a website transcribing scanner feeds to text in real-time, in response to recent events. It is <a href="https://github.com/lunixbochs/feeds">open-source</a>.</p>
+    <p>
+      We take live audio streams, split on voice activity, transcribe using speech recognition, and push the result to the web feeds below.
+      <br />
+      For each feed, you can read the live text, listen to the audio, suggest alternate text, and vote on good/bad text.
+    </p>
+    <p>
+      It currently uses the Google Speech "video" speech model was most accurate in testing. However, this is too expensive to run many live streams.
+      <br />
+      You can help by listening to the audio and suggesting corrected text, which we can use to train our own speech recognition system on this task.
+      <br />
+      If we get enough data to train our own system, it will be affordable to expand the effort to dozens of live feeds.
+      <br />
+      You can <a href="https://www.patreon.com/lunixbochs">donate here</a> if you want to support this effort. You can also message <a href="https://twitter.com/lunixbochs">@lunixbochs</a> on Twitter about it.
+    </p>
+
+    <h4>Recently Active Feeds</h3>
+    <ul class="feed-list">
+    {% for feed in feeds %}
+    {% if feed.active %}
+    <li>
+      <a href="/feeds/{{ feed['_id'] }}"> {{ feed['name'] }} </a>
+      <span>
+        {% if feed.hours_ago < 1 %}
+         (just now)
+        {% else %}
+         ({{ feed.hours_ago }}h ago)
+        {% endif %}
+      </span>
+    </li>
+    {% endif %}
+    {% endfor %}
+    </ul>
+
+    <h4>Inactive</h3>
+    <ul class="feed-list">
+    {% for feed in feeds %}
+    {% if not feed.active %}
+    <li><a href="/feeds/{{ feed['_id'] }}"> {{ feed['name'] }} </a></li>
+    {% endif %}
+    {% endfor %}
+    </ul>
+  </body>
+</html>

@@ -1,5 +1,5 @@
 from bson import ObjectId
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from flask import Response, abort, redirect, render_template, request
 import json
 import os
@@ -11,14 +11,21 @@ from .utils import json_error, json_response, new_transcription, require_auth
 @app.route('/')
 def feed_index():
     feeds = list(mongo.db.feeds.find())
-    # TODO: aggregate or something instead of doing N extra queries
+    # TODO: aggregate, or store this on the feed when you insert a call, or something instead of doing N extra queries
+    now = datetime.now(timezone.utc)
     for feed in feeds:
-        feed['newest_call'] = mongo.db.calls.find_one(
+        newest_call = mongo.db.calls.find_one(
             {'feed_id': feed['_id']},
             projection=['ts'],
             sort=[('ts', pymongo.DESCENDING)])
+        if newest_call:
+            ts = feed['last_ts'] = newest_call['ts']
+            feed['active'] = now - ts <= timedelta(days=1)
+            feed['hours_ago'] = int((now - ts).total_seconds() / 60 / 60)
     feeds.sort(key=lambda x: x['name'])
-    return render_template('feed_index.html', feeds=feeds)
+    return render_template('feed_index.html',
+                           feeds=feeds,
+                           time_now=now)
 
 def _get_feed(feed_id, since=None, limit=200):
     query = {'feed_id': feed_id}
@@ -44,13 +51,14 @@ def get_feed(feed_id):
         feed_id=str(feed_id),
         last_timestamp=0,
         calls=calls,
+        time_now=datetime.now(timezone.utc),
     )
 
 @app.route('/api/feeds/<ObjectId:feed_id>')
 def get_feed_text(feed_id):
     since = None
     if 'since' in request.args:
-        since = datetime.utcfromtimestamp(float(request.args['since']))
+        since = datetime.utcfromtimestamp(float(request.args['since'])).replace(tzinfo=timezone.utc)
     limit = min(10000, int(request.args.get('limit', 10000)))
     calls = _get_feed(feed_id, since=since, limit=limit)
     return json_response(calls)
