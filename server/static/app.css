@@ -42,3 +42,19 @@ time {
   height: 1.5rem;
   line-height: 1.5rem;
 }
+
+#alert-box {
+  position: fixed;
+
+  /* center */
+  left: 50%;
+  transform: translate(-50%);
+
+  max-width: 60ex;
+  top: 2em;
+
+  background: #fbfcc2;
+  border: 2px solid #fcc3c2;
+  padding: 1ex;
+
+}

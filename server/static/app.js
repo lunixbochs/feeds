@@ -190,6 +190,8 @@ function handleApiError(response) {
   }
 
   message = json.error
-  //TODO, surface to user
   console.log(`Error: ${message}`);
+
+  $('#alert-box').text(message).fadeIn('fast')
+  setTimeout( () => { $('#alert-box').fadeOut('slow') }, 3000)
 }
