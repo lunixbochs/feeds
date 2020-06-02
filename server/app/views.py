@@ -83,7 +83,7 @@ def add_call():
 @app.route('/api/calls/<ObjectId:call_id>/transcribe', methods=['POST'])
 def suggest(call_id):
     text = request.form.get('text', '')
-    if len(text) < 5 or len(text) > 1000:
+    if len(text) < 3 or len(text) > 1000:
         return json_error('Invalid Text')
 
     call = mongo.db.calls.find_one_and_update(
