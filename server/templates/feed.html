@@ -32,26 +32,26 @@
     </script>
 
     <ul id="entries">
-      {% for c in calls %}
-        <li class="call" id="call-{{ c._id }}" data-id="{{ c._id }} ">
-          <div class="buttons button toggle">🔊</div>
-          <time>{{ c.ts.strftime('%-m/%-d/%Y %H:%M:%S') }}</time>
-          {% if not c.transcriptions %}
-          <div class="message" data-id="{{ best._id }}">
-            <span class="score">(?)</span>{#
+      {%- for c in calls -%}
+        <li class="call" id="call-{{ c._id }}" data-id="{{ c._id }} ">{#
+          #}<div class="buttons button toggle">🔊</div>{#
+          #}<time>{{ c.ts.strftime('%-m/%-d/%Y %H:%M:%S') }}</time>
+          {%- if not c.transcriptions -%}
+          <div class="message" data-id="{{ best._id }}">{#
+            #}<span class="score">(?)</span>{#
             #}<span class="source-icon">❔</span>{#
-            #}<span class="transcription-text"></span>
-          </div>
-          {% else %}
-          {% set best = c.transcriptions[0] %}
-          <div class="message" data-id="{{ best._id }}">
-            <span class="score">({{ best.upvotes - best.downvotes }})</span>{#
+            #}<span class="transcription-text"></span>{#
+          #}</div>
+          {%- else -%}
+          {%- set best = c.transcriptions[0] -%}
+          <div class="message" data-id="{{ best._id }}">{#
+            #}<span class="score">({{ best.upvotes - best.downvotes }})</span>{#
             #}<span class="source-icon">{% if best.source == "user" %}👤{% else %}🤖{% endif %}</span>{#
-            #}<span class="transcription-text">{{ best.text }}</span>
-          </div>
-          {% endif %}
+            #}<span class="transcription-text">{{ best.text }}</span>{#
+          #}</div>
+          {%- endif -%}
         </li>
-      {% endfor %}
+      {%- endfor -%}
     </ul>
   </body>
 </html>

@@ -28,29 +28,29 @@
 
     <h4>Recently Active Feeds</h3>
     <ul class="feed-list">
-    {% for feed in feeds %}
-    {% if feed.active %}
-    <li>
-      <a href="/feeds/{{ feed['_id'] }}"> {{ feed['name'] }} </a>
-      <span>
-        {% if feed.hours_ago < 1 %}
+    {%- for feed in feeds -%}
+    {%- if feed.active -%}
+    <li>{#
+      #}<a href="/feeds/{{ feed['_id'] }}">{{ feed['name'] }}</a>{#
+      #}<span>
+        {% if feed.hours_ago < 1 -%}
          (just now)
-        {% else %}
+        {%- else -%}
          ({{ feed.hours_ago }}h ago)
-        {% endif %}
-      </span>
-    </li>
-    {% endif %}
-    {% endfor %}
+        {%- endif -%}
+      #}</span>{#
+    #}</li>
+    {%- endif -%}
+    {%- endfor -%}
     </ul>
 
     <h4>Inactive</h3>
     <ul class="feed-list">
-    {% for feed in feeds %}
-    {% if not feed.active %}
-    <li><a href="/feeds/{{ feed['_id'] }}"> {{ feed['name'] }} </a></li>
-    {% endif %}
-    {% endfor %}
+    {%- for feed in feeds -%}
+    {%- if not feed.active -%}
+    <li><a href="/feeds/{{ feed['_id'] }}">{{ feed['name'] }}</a></li>
+    {%- endif -%}
+    {%- endfor -%}
     </ul>
   </body>
 </html>
