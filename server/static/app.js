@@ -159,13 +159,14 @@ function createLogEntry(obj) {
       audio.trigger('play');
     }
     activeCall = obj._id;
+    logEntry.append(toggle).append(callContent)
   } else {
     let transcription = obj.transcriptions[0];
     callContent.append($('<span class="score" />').text(`(${transcription.upvotes - transcription.downvotes})`))
     callContent.append($('<span class="source-icon" />').append(transcription.source === "user" ? "👤" : "🤖"))
     callContent.append($('<span class="transcription-text" />').text(transcription.text));
+    logEntry.append(toggle).append(time).append(callContent)
   }
-  logEntry.append(toggle).append(time).append(callContent)
   return logEntry
 }
 
