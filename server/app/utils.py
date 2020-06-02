@@ -18,8 +18,11 @@ def _json_unknown(obj):
 def json_encode(j):
     return json.dumps(j, default=_json_unknown)
 
-def json_response(d):
-    return Response(json_encode(d), mimetype='text/json')
+def json_response(d, status=200):
+    return Response(json_encode(d), mimetype='text/json', status=status)
+
+def json_error(msg, status=400):
+    return json_response({ 'error': msg }, status=status)
 
 def require_auth():
     if not 'API_KEY' in app.config:

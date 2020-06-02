@@ -6,7 +6,7 @@ import os
 import pymongo
 
 from .app import app, mongo
-from .utils import json_response, new_transcription, require_auth
+from .utils import json_error, json_response, new_transcription, require_auth
 
 @app.route('/')
 def feed_index():
@@ -84,17 +84,18 @@ def add_call():
 def suggest(call_id):
     text = request.form.get('text', '')
     if len(text) < 3 or len(text) > 1000:
-        return json_response({ 'success': False, 'reason': 'Invalid Text' })
+        return json_error('Invalid Text')
 
     # TODO: also block duplicate submissions on the client side
-    result = mongo.db.calls.update_one(
+    call = mongo.db.calls.find_one_and_update(
         { '_id': call_id, 'transcriptions.text': {'$nin': [text]} },
-        { '$push': { 'transcriptions': new_transcription(text, source='user') } }
-    )
-    if result.modified_count == 1:
-        return json_response({ 'success': True })
+        { '$push': { 'transcriptions': new_transcription(text, source='user') } },
+        return_document=pymongo.ReturnDocument.AFTER)
+    if call is None:
+        # this could also be call id not found
+        return json_error("Duplicate transcription")
     else:
-        abort(404)
+        return json_response(call)
 
 @app.route('/api/transcriptions/<ObjectId:transcription_id>/vote', methods=['POST'])
 def upvote(transcription_id):

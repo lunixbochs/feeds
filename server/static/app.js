@@ -81,13 +81,33 @@ function handleVote(evt) {
   })
 }
 
+// toggle the 'save' button based on whether the text is unique and long enough
+function handleTranscriptionInput(evt) {
+  const newTranscription = $(evt.target).val()
+  const saveButton = $(evt.target).parent().find('button')
+
+  if (newTranscription.length < 3) {
+    saveButton.attr('disabled', true)
+    return
+  }
+
+  const existingTranscriptions = $(evt.target)
+    .parents('.transcriptions')
+    .find('.transcription-text')
+    .map( function() { return this.textContent} )
+    .get()
+  const isDuplicate = existingTranscriptions.includes(newTranscription)
+
+  saveButton.attr('disabled', isDuplicate)
+}
+
 function handleCustomTranscription(evt) {
   if (evt.preventDefault) { evt.preventDefault() }
   const callId = getCallFromElement(evt.target)
   const newTranscription = $(evt.target).find('input').val()
   $.post(`/api/calls/${callId}/transcribe`, {
     text: newTranscription
-  })
+  }).done(handleLogEntry).fail(handleApiError)
 }
 
 function createLogEntry(obj) {
@@ -104,7 +124,7 @@ function createLogEntry(obj) {
       const li = $('<li class="transcription" />')
       li.data('id', transcription._id)
       li.append(getTranscriptionButtons(transcription))
-      li.append($('<span />').text(transcription.text))
+      li.append($('<span class="transcription-text"/>').text(transcription.text))
       tList.append(li)
     })
 
@@ -113,7 +133,8 @@ function createLogEntry(obj) {
     const customForm = $('<form />')
     const customEntry = $('<input type="text" />')
     customEntry.attr('value', obj.transcriptions[0].text)
-    customForm.append($('<button submit>Save</button>'))
+    customEntry.on('input', handleTranscriptionInput)
+    customForm.append($('<button disabled submit>Save</button>'))
     customForm.append(customEntry)
     customTranscription.append(customForm)
     tList.append(customTranscription)
@@ -159,4 +180,16 @@ function handleLogEntry(obj) {
   }
 
   if (obj.ts > lastTimestamp) { lastTimestamp = obj.ts }
+}
+
+function handleApiError(response) {
+  const json = response.responseJSON
+  if (!json) {
+    console.log("Unexpected API Error Response:", response)
+    return
+  }
+
+  message = json.error
+  //TODO, surface to user
+  console.log(`Error: ${message}`);
 }
