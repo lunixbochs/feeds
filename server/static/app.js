@@ -127,6 +127,12 @@ function handleCustomTranscription(evt) {
   $(evt.target).find('button').attr('disabled', true) // prevent repeat submission
   const callId = getCallFromElement(evt.target)
   const newTranscription = $(evt.target).find('input').val()
+
+  var fixes = parseInt(localStorage.getItem('fixes'));
+  window.localStorage.setItem('fixes', ++fixes);
+  console.log(fixes)
+  $("#number-fixes").text(fixes);
+
   $.post(`/api/calls/${callId}/transcribe`, {
     text: newTranscription
   }).done( (res) => handleLogEntry(res, newTranscription) ).fail(handleApiError)
