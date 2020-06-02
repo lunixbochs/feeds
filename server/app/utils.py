@@ -12,7 +12,7 @@ def _json_unknown(obj):
     elif isinstance(obj, pymongo.cursor.Cursor):
         return list(obj)
     elif isinstance(obj, datetime):
-        return time.mktime(obj.timetuple())
+        return obj.timestamp()
     raise TypeError(type(object))
 
 def json_encode(j):
