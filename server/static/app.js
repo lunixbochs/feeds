@@ -74,8 +74,10 @@ function handleVote(evt) {
   const callId = getCallFromElement(evt.target)
   const transcriptionId = getTranscriptionFromElement(evt.target)
   const vote = $(evt.target).hasClass('upvote') ? 1 : -1
+  if (votes[transcriptionId] === vote) {
+    return //prevent spam clicking
+  }
   votes[transcriptionId] = vote
-  handleLogEntry(calls[callId]) // Refresh the UI.
   $.post(`/api/transcriptions/${transcriptionId}/vote`, {
     vote: vote
   }).done(handleLogEntry).fail(handleApiError)
@@ -162,7 +164,15 @@ function createLogEntry(obj) {
 function updateLogEntry(existing, obj) {
   // We assume this is updated in some way or the server wouldn't have sent it,
   // so we don't bother checking to see if there are actually changes.
-  existing.replaceWith(createLogEntry(obj))
+  // However, we want to avoid clobbering the input and audio elements for
+  // already-open entries.
+  const t = existing.find('.transcriptions')
+  const newEntry = createLogEntry(obj)
+  if (t.length > 0) {
+    t.replaceWith(newEntry.find('.transcriptions'))
+  } else {
+    existing.replaceWith(newEntry)
+  }
 }
 
 function addLogEntry(obj) {
