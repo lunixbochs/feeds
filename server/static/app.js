@@ -20,10 +20,11 @@ $(function() {
   $('#entries').on('click', '.toggle', handleToggle)
   $('#entries').on('click', '.vote.buttons', handleVote)
   $('#entries').on('submit', handleCustomTranscription)
-  var update = function() {
+  var update = function(limit) {
+    if (!limit) limit = 200
     $.getJSON(`/api/feeds/${pageSettings.feedId}`, {
       since: lastTimestamp,
-      limit: 200
+      limit: limit
     }, function(messages) {
       $.each(messages, function(_idx, message) {
         handleLogEntry(message)
@@ -31,7 +32,7 @@ $(function() {
     })
   }
   setInterval(update, pollFrequency)
-  update()
+  update(10000)
 })
 
 function getCallFromElement(ele) {
