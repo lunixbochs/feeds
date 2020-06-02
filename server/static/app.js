@@ -15,6 +15,17 @@ const openCalls = {}
 const votes = {}
 var activeCall = null
 
+function renderScores() {
+  var fixes = parseInt(localStorage.getItem('fixes')) || 0;
+  var upvotes = parseInt(localStorage.getItem('upvotes')) || 0;
+  var downvotes = parseInt(localStorage.getItem('downvotes')) || 0;
+  if (fixes > 0 || upvotes > 0 || downvotes > 0) {
+    $("#number-fixes").text(`(${fixes})`);
+    $("#number-upvotes").text(`(${upvotes})`);
+    $("#number-downvotes").text(`(${downvotes})`);
+  }
+}
+
 $(function() {
   $('#entries').on('click', '.toggle', handleToggle)
   $('#entries').on('click', '.vote.buttons', handleVote)
@@ -34,6 +45,7 @@ $(function() {
   // TODO: instead of re-updating the whole list on load
   // maybe do a synchronous fetch if we need to get more info about a single item we haven't loaded yet
   update(2000)
+  renderScores();
 })
 
 function getCallFromElement(ele) {
@@ -85,16 +97,13 @@ function handleVote(evt) {
 
   // Count votes
   if (vote === 1) {
-    var upvotes = parseInt(localStorage.getItem('upvotes'));
+    var upvotes = parseInt(localStorage.getItem('upvotes')) || 0;
     window.localStorage.setItem('upvotes', ++upvotes);
-    console.log(upvotes)
-    $("#number-upvotes").text(upvotes);
   } else {
-    var downvotes = parseInt(localStorage.getItem('downvotes'));
+    var downvotes = parseInt(localStorage.getItem('downvotes')) || 0;
     window.localStorage.setItem('downvotes', ++downvotes);
-    console.log(downvotes)
-    $("#number-downvotes").text(downvotes);
   }
+  renderScores();
 
   votes[transcriptionId] = vote
   $.post(`/api/transcriptions/${transcriptionId}/vote`, {
@@ -128,10 +137,9 @@ function handleCustomTranscription(evt) {
   const callId = getCallFromElement(evt.target)
   const newTranscription = $(evt.target).find('input').val()
 
-  var fixes = parseInt(localStorage.getItem('fixes'));
+  var fixes = parseInt(localStorage.getItem('fixes')) || 0;
   window.localStorage.setItem('fixes', ++fixes);
-  console.log(fixes)
-  $("#number-fixes").text(fixes);
+  renderScores();
 
   $.post(`/api/calls/${callId}/transcribe`, {
     text: newTranscription
