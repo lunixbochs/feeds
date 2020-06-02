@@ -10,7 +10,6 @@ const timeFormat = {
 }
 const timeFormatter = new Intl.DateTimeFormat('en-US', timeFormat)
 let lastTimestamp = 0
-let toolboxEle
 const calls = {}
 const openCalls = {}
 const votes = {}
@@ -32,6 +31,8 @@ $(function() {
     })
   }
   setInterval(update, pollFrequency)
+  // TODO: instead of re-updating the whole list on load
+  // maybe do a synchronous fetch if we need to get more info about a single item we haven't loaded yet
   update(10000)
 })
 
@@ -122,7 +123,7 @@ function createLogEntry(obj) {
   logEntry.attr('id', `call-${obj._id}`)
   logEntry.data('id', obj._id)
   const toggle = $('<div class="buttons button toggle">🔊</div>')
-  const time = $('<time />').text(timeFormatter.format(new Date(obj.ts * 1000)))
+  const time = $('<time />').text(timeFormatter.format(new Date(obj.ts * 1000)).replace(', ', ' '))
   const callContent = $('<div class="message" />')
   if (openCalls[obj._id]) {
     // Build up a list of transcriptions and links for them.
@@ -130,9 +131,9 @@ function createLogEntry(obj) {
     $.each(obj.transcriptions, function(_idx, transcription) {
       const li = $('<li class="transcription" />')
       li.data('id', transcription._id)
-      li.append($('<span class="source-icon" />').append( transcription.source === "user" ? "👤" : "🤖"))
-      li.append($('<span class="score" />').text( transcription.upvotes - transcription.downvotes ))
       li.append(getTranscriptionButtons(transcription))
+      li.append($('<span class="score" />').text(`(${transcription.upvotes - transcription.downvotes})`))
+      li.append($('<span class="source-icon" />').append( transcription.source === "user" ? "👤" : "🤖"))
       li.append($('<span class="transcription-text"/>').text(transcription.text))
       tList.append(li)
     })
@@ -159,7 +160,10 @@ function createLogEntry(obj) {
     }
     activeCall = obj._id;
   } else {
-    callContent.text(obj.transcriptions[0].text)
+    let transcription = obj.transcriptions[0];
+    callContent.append($('<span class="score" />').text(`(${transcription.upvotes - transcription.downvotes})`))
+    callContent.append($('<span class="source-icon" />').append(transcription.source === "user" ? "👤" : "🤖"))
+    callContent.append($('<span class="transcription-text" />').text(transcription.text));
   }
   logEntry.append(toggle).append(time).append(callContent)
   return logEntry
@@ -200,7 +204,6 @@ function handleLogEntry(obj, userText) {
   } else {
     addLogEntry(obj)
   }
-
   if (obj.ts > lastTimestamp) { lastTimestamp = obj.ts }
 }
 

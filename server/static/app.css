@@ -61,9 +61,6 @@ form, audio {
 
 .buttons {
   font-size: 1.5rem;
-  flex-grow: 0;
-  flex-shrink: 0;
-  display: flex; /* Removes spaces between elements */
 }
 
 .button {
@@ -75,7 +72,12 @@ form, audio {
   opacity: 1;
 }
 
+.transcription-text {
+  padding-left: 0.25rem;
+}
+
 .source-icon {
+  padding-left: 0.25rem;
   flex-grow: 0;
   flex-shrink: 0;
   width: 1.5em;
@@ -90,7 +92,6 @@ form, audio {
 
 time {
   font-family: monospace;
-  white-space: nowrap;
   display: block;
   height: 1.5rem;
   line-height: 1.5rem;
