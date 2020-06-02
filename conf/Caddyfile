@@ -9,5 +9,5 @@ feeds.talonvoice.com/audio/* {
 }
 
 feeds.talonvoice.com {
-    reverse_proxy localhost:5005
+    reverse_proxy localhost:5006
 }
