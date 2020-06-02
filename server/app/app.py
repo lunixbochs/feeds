@@ -12,7 +12,7 @@ app.config.update({
 })
 if 'FLASK_SETTINGS' in os.environ:
     app.config.from_envvar('FLASK_SETTINGS')
-mongo = PyMongo(app)
+mongo = PyMongo(app, tz_aware=True)
 
 _static_cache = {}
 @app.template_filter('cachebust')
