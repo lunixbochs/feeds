@@ -20,6 +20,19 @@
     <a href="/">&lt- feed list</a>
 
     <script type="text/javascript">
+        var upvotes = parseInt(localStorage.getItem('upvotes'));
+        if (isNaN(upvotes))
+          upvotes = 0;
+
+        var downvotes = parseInt(localStorage.getItem('downvotes'));
+        if (isNaN(downvotes))
+          downvotes = 0;
+
+        var fixes = parseInt(localStorage.getItem('fixes'));
+        if (isNaN(fixes))
+          fixes = 0;
+
+
         document.write(`
     <div class="feed-help">
     <p>Help us improve our transcriptions! Click the buttons to let us know:</p>
@@ -27,6 +40,12 @@
       <li>🔊 to listen and fix a transcription</li>
       <li>👍 if a transcription is accurate</li>
       <li>👎 if a transcription is inaccurate</li>
+    </ul>
+    <p>Your contributions</p>
+    <ul>
+      <li><span id="number-transcriptions">` + fixes + `</span> transcriptions fixed</li>
+      <li><span id="number-upvotes">` + upvotes + `</span> upvotes</li>
+      <li><span id="number-downvotes">` + downvotes + `</span> downvotes</li>
     </ul>
     </div>`)
     </script>

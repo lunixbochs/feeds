@@ -82,6 +82,20 @@ function handleVote(evt) {
   if (votes[transcriptionId] === vote) {
     return //prevent spam clicking
   }
+
+  // Count votes
+  if (vote === 1) {
+    var upvotes = parseInt(localStorage.getItem('upvotes'));
+    window.localStorage.setItem('upvotes', ++upvotes);
+    console.log(upvotes)
+    $("#number-upvotes").text(upvotes);
+  } else {
+    var downvotes = parseInt(localStorage.getItem('downvotes'));
+    window.localStorage.setItem('downvotes', ++downvotes);
+    console.log(downvotes)
+    $("#number-downvotes").text(downvotes);
+  }
+
   votes[transcriptionId] = vote
   $.post(`/api/transcriptions/${transcriptionId}/vote`, {
     vote: vote
