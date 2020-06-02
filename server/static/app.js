@@ -165,10 +165,10 @@ function updateLogEntry(existing, obj) {
   // We assume this is updated in some way or the server wouldn't have sent it,
   // so we don't bother checking to see if there are actually changes.
   // However, we want to avoid clobbering the input and audio elements for
-  // already-open entries.
+  // already-open entries... unless we're closing the entry.
   const t = existing.find('.transcriptions')
   const newEntry = createLogEntry(obj)
-  if (t.length > 0) {
+  if (t.length > 0 && openCalls[obj._id]) {
     t.replaceWith(newEntry.find('.transcriptions'))
   } else {
     existing.replaceWith(newEntry)
