@@ -105,6 +105,7 @@ function handleTranscriptionInput(evt) {
 
 function handleCustomTranscription(evt) {
   if (evt.preventDefault) { evt.preventDefault() }
+  $(evt.target).find('button').attr('disabled', true) // prevent repeat submission
   const callId = getCallFromElement(evt.target)
   const newTranscription = $(evt.target).find('input').val()
   $.post(`/api/calls/${callId}/transcribe`, {
@@ -131,9 +132,10 @@ function createLogEntry(obj) {
       li.append($('<span class="transcription-text"/>').text(transcription.text))
       tList.append(li)
     })
+    callContent.append(tList)
 
     // The manual transcription entry form
-    const customTranscription = $('<li class="custom-entry" />')
+    const customTranscription = $('<div class="custom-entry" />')
     const customForm = $('<form />')
     const customEntry = $('<input type="text" />')
     customEntry.attr('value', obj.transcriptions[0].text)
@@ -141,9 +143,7 @@ function createLogEntry(obj) {
     customForm.append($('<button disabled submit>Save</button>'))
     customForm.append(customEntry)
     customTranscription.append(customForm)
-    tList.append(customTranscription)
-
-    callContent.append(tList)
+    callContent.append(customTranscription)
 
     const audio = $('<audio controls />')
     audio.attr('src', obj.audio_url);

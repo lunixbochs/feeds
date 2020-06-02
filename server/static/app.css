@@ -6,7 +6,7 @@ body {
   padding: 0;
 }
 
-#entries li {
+#entries li, .custom-entry {
   display: flex;
   gap: 0.5rem;
   list-style: none;
@@ -17,6 +17,7 @@ body {
 #entries li li:first-child {
   border: none;
 }
+
 
 .message {
   padding-left: 1rem;
@@ -55,10 +56,14 @@ form, audio {
 }
 
 .source-icon {
+  flex-grow: 0;
+  flex-shrink: 0;
   width: 1.5em;
 }
 
 .score {
+  flex-grow: 0;
+  flex-shrink: 0;
   min-width: 4ex;
   text-align: right;
 }
