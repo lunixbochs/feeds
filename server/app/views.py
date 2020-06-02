@@ -50,7 +50,7 @@ def get_feed(feed_id):
 def get_feed_text(feed_id):
     since = None
     if 'since' in request.args:
-        since = datetime.utcfromtimestamp(int(request.args['since']))
+        since = datetime.utcfromtimestamp(float(request.args['since']))
     limit = min(200, int(request.args.get('limit', 200)))
     calls = _get_feed(feed_id, since=since, limit=limit)
     return json_response(calls)
