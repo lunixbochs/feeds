@@ -30,7 +30,13 @@ def slash():
 def _get_feed(feed_id, since=None, limit=200):
     query = {'feed_id': feed_id}
     if since is not None:
-        query['ts'] = {'$gte': since}
+        query.update({
+            '$or': [
+                {'update_ts': {'$gte': since}},
+                {'update_ts': {'$exists': False}, 'ts': {'$gte': since}},
+            ],
+        })
+        query['update_ts'] = {'$gte': since}
     return mongo.db.calls.find(
         query,
         projection=['ts', 'audio_url', 'transcriptions._id', 'transcriptions.ts', 'transcriptions.text',
@@ -80,6 +86,7 @@ def add_call():
     mongo.db.calls.insert_one({
         'feed_id': feed['_id'],
         'ts': datetime.fromisoformat(j['ts']),
+        'update_ts': datetime.fromisoformat(j['ts']),
         'audio_url': j['audio_url'],
         'audio_length': j['audio_length'],
         'from': j.get('from', None),
@@ -94,9 +101,13 @@ def suggest(call_id):
     if len(text) < 3 or len(text) > 1000:
         return json_error('Invalid Text')
 
+    ts = datetime.now(timezone.utc)
     call = mongo.db.calls.find_one_and_update(
         { '_id': call_id, 'transcriptions.text': {'$nin': [text]} },
-        { '$push': { 'transcriptions': new_transcription(text, source='user') } },
+        {
+            '$push': { 'transcriptions': new_transcription(text, ts=ts, source='user') },
+            '$set': { 'update_ts': ts },
+        },
         return_document=pymongo.ReturnDocument.AFTER)
     if call is None:
         # TODO: this could also be call id not found, but we'll assume it's a dup for now
@@ -110,12 +121,18 @@ def upvote(transcription_id):
     if vote == 1:
         result = mongo.db.calls.find_one_and_update(
             { 'transcriptions._id': transcription_id },
-            { '$inc': { 'transcriptions.$.upvotes': 1 } },
+            {
+                '$inc': { 'transcriptions.$.upvotes': 1 },
+                '$set': { 'update_ts': datetime.now(timezone.utc) },
+            },
             return_document=pymongo.ReturnDocument.AFTER)
     elif vote == -1:
         result = mongo.db.calls.find_one_and_update(
             { 'transcriptions._id': transcription_id },
-            { '$inc': { 'transcriptions.$.downvotes': 1 } },
+            {
+                '$inc': { 'transcriptions.$.downvotes': 1 },
+                '$set': { 'update_ts': datetime.now(timezone.utc) },
+            },
             return_document=pymongo.ReturnDocument.AFTER)
     else:
         return json_error("Invalid Vote", status=400)

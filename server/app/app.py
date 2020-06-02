@@ -33,6 +33,7 @@ def setup_indexes():
         'calls': [
             ('feed_id', 1),
             [('ts', -1), ('feed_id', 1)],
+            [('update_ts', -1), ('feed_id', 1)],
         ],
     }
     for name, items in indexes.items():
