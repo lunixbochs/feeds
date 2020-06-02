@@ -86,13 +86,12 @@ def suggest(call_id):
     if len(text) < 3 or len(text) > 1000:
         return json_error('Invalid Text')
 
-    # TODO: also block duplicate submissions on the client side
     call = mongo.db.calls.find_one_and_update(
         { '_id': call_id, 'transcriptions.text': {'$nin': [text]} },
         { '$push': { 'transcriptions': new_transcription(text, source='user') } },
         return_document=pymongo.ReturnDocument.AFTER)
     if call is None:
-        # this could also be call id not found
+        # TODO: this could also be call id not found, but we'll assume it's a dup for now
         return json_error("Duplicate transcription")
     else:
         return json_response(call)
