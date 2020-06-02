@@ -9,7 +9,7 @@ from .app import app, mongo
 from .utils import json_error, json_response, new_transcription, require_auth
 
 @app.route('/')
-def feed_index():
+def slash():
     feeds = list(mongo.db.feeds.find())
     # TODO: aggregate, or store this on the feed when you insert a call, or something instead of doing N extra queries
     now = datetime.now(timezone.utc)
@@ -23,7 +23,7 @@ def feed_index():
             feed['active'] = now - ts <= timedelta(days=0.5)
             feed['hours_ago'] = int((now - ts).total_seconds() / 60 / 60)
     feeds.sort(key=lambda x: x['name'])
-    return render_template('feed_index.html',
+    return render_template('index.html',
                            feeds=feeds,
                            time_now=now)
 
