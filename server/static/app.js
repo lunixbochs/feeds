@@ -103,6 +103,8 @@ function createLogEntry(obj) {
     $.each(obj.transcriptions, function(_idx, transcription) {
       const li = $('<li class="transcription" />')
       li.data('id', transcription._id)
+      li.append($('<span class="source-icon" />').append( transcription.source === "user" ? "👤" : "🤖"))
+      li.append($('<span class="score" />').text( transcription.upvotes - transcription.downvotes ))
       li.append(getTranscriptionButtons(transcription))
       li.append($('<span />').text(transcription.text))
       tList.append(li)
