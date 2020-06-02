@@ -33,7 +33,7 @@ $(function() {
   setInterval(update, pollFrequency)
   // TODO: instead of re-updating the whole list on load
   // maybe do a synchronous fetch if we need to get more info about a single item we haven't loaded yet
-  update(10000)
+  update(2000)
 })
 
 function getCallFromElement(ele) {

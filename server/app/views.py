@@ -42,7 +42,7 @@ def _get_feed(feed_id, since=None, limit=200):
 @app.route('/feeds/<ObjectId:feed_id>')
 def get_feed(feed_id):
     feed = mongo.db.feeds.find_one_or_404({'_id': feed_id})
-    calls = list(_get_feed(feed_id, limit=10000))
+    calls = list(_get_feed(feed_id, limit=2000))
     for call in calls:
         call['transcriptions'].sort(key=lambda x: (x['upvotes'] - x['downvotes']), reverse=True)
     return render_template(
@@ -59,7 +59,7 @@ def get_feed_text(feed_id):
     since = None
     if 'since' in request.args:
         since = datetime.utcfromtimestamp(float(request.args['since'])).replace(tzinfo=timezone.utc)
-    limit = min(10000, int(request.args.get('limit', 10000)))
+    limit = min(2000, int(request.args.get('limit', 2000)))
     calls = _get_feed(feed_id, since=since, limit=limit)
     return json_response(calls)
 
