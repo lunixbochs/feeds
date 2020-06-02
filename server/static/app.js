@@ -78,7 +78,7 @@ function handleVote(evt) {
   handleLogEntry(calls[callId]) // Refresh the UI.
   $.post(`/api/transcriptions/${transcriptionId}/vote`, {
     vote: vote
-  })
+  }).done(handleLogEntry).fail(handleApiError)
 }
 
 // toggle the 'save' button based on whether the text is unique and long enough
