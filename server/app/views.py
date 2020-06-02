@@ -20,7 +20,7 @@ def feed_index():
             sort=[('ts', pymongo.DESCENDING)])
         if newest_call:
             ts = feed['last_ts'] = newest_call['ts']
-            feed['active'] = now - ts <= timedelta(days=1)
+            feed['active'] = now - ts <= timedelta(days=0.5)
             feed['hours_ago'] = int((now - ts).total_seconds() / 60 / 60)
     feeds.sort(key=lambda x: x['name'])
     return render_template('feed_index.html',
