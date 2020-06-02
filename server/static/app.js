@@ -110,7 +110,7 @@ function handleCustomTranscription(evt) {
   const newTranscription = $(evt.target).find('input').val()
   $.post(`/api/calls/${callId}/transcribe`, {
     text: newTranscription
-  }).done(handleLogEntry).fail(handleApiError)
+  }).done( (res) => handleLogEntry(res, newTranscription) ).fail(handleApiError)
 }
 
 function createLogEntry(obj) {
@@ -179,7 +179,13 @@ function addLogEntry(obj) {
   $('#entries').prepend(createLogEntry(obj))
 }
 
-function handleLogEntry(obj) {
+function handleLogEntry(obj, userText) {
+  if (userText) {
+    const userTranscription = obj.transcriptions.find( t => t.text === userText )
+    if (userTranscription) {
+      votes[userTranscription._id] = 1;
+    }
+  }
   calls[obj._id] = obj
   obj.transcriptions.sort(function(a, b) {
     return (b.upvotes - b.downvotes) > (a.upvotes - a.downvotes)

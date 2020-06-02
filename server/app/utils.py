@@ -38,7 +38,7 @@ def new_transcription(text, ts=None, source='user'):
         '_id': bson.ObjectId(),
         'ts': ts,
         'text': text,
-        'upvotes': 0,
+        'upvotes': 1 if source == 'user' else 0,
         'downvotes': 0,
         'source': source,
     })
