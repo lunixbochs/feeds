@@ -21,17 +21,22 @@
 
     <script type="text/javascript">
         var upvotes = parseInt(localStorage.getItem('upvotes'));
-        if (isNaN(upvotes))
+        if (isNaN(upvotes)) {
           upvotes = 0;
+          window.localStorage.setItem('upvotes', 0);
+        }
 
         var downvotes = parseInt(localStorage.getItem('downvotes'));
-        if (isNaN(downvotes))
+        if (isNaN(downvotes)) {
           downvotes = 0;
+          window.localStorage.setItem('downvotes', 0);
+        }
 
         var fixes = parseInt(localStorage.getItem('fixes'));
-        if (isNaN(fixes))
+        if (isNaN(fixes)) {
           fixes = 0;
-
+          window.localStorage.setItem('fixes', 0);
+        }
 
         document.write(`
     <div class="feed-help">
