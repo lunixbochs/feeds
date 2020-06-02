@@ -110,6 +110,7 @@ def upvote(transcription_id):
             { '$inc': { 'transcriptions.$.downvotes': 1 } },
             return_document=pymongo.ReturnDocument.AFTER)
     else:
-        abort(404)
-    print('here', result)
-    return json_response({ 'success': True, 'result': result })
+        return json_error("Invalid Vote", status=400)
+    if result is None:
+        return json_error("Call not found", status=404)
+    return json_response(result)
