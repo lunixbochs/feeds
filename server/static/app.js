@@ -14,7 +14,7 @@ let toolboxEle
 const calls = {}
 const openCalls = {}
 const votes = {}
-var activeCall = -1;
+var activeCall = null
 
 $(function() {
   $('#entries').on('click', '.toggle', handleToggle)
@@ -62,6 +62,9 @@ function handleToggle(evt) {
       wasOpen.push(callId);
     }
   });
+  if (openCalls[clickedId]) {
+    activeCall = null;
+  }
   openCalls[clickedId] = !openCalls[clickedId]
   handleLogEntry(calls[clickedId]) // Refresh the UI.
   $.each(wasOpen, function(idx, callId) {
