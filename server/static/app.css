@@ -45,9 +45,11 @@ h3, h4 {
   max-width: 100ex;
 }
 
-input[type=text] {
+textarea {
   margin-left: 1ex;
   flex-grow: 1;
+  font-family: serif;
+  resize: none;
 }
 
 form {
