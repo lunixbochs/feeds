@@ -12,7 +12,7 @@ import trunk_stream
 def tts_stream(queue, engine):
     while True:
         call = queue.get()
-        if call.duration < 0.200:
+        if call.duration < 0.750:
             continue
         samples = call.audio_segment.get_array_of_samples()
         text = engine.decode(samples)
