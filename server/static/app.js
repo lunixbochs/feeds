@@ -36,6 +36,9 @@ $(function() {
       since: lastTimestamp,
       limit: limit
     }, function(messages) {
+      // we'll prepend each of these, so process oldest first
+      // to maintain overall newest-first order
+      messages.sort( (a,b) => a.ts - b.ts )
       $.each(messages, function(_idx, message) {
         handleLogEntry(message)
       })
