@@ -244,7 +244,12 @@ function handleLogEntry(obj, userText) {
   }
   calls[obj._id] = obj
   obj.transcriptions.sort(function(a, b) {
-    return (b.upvotes - b.downvotes) > (a.upvotes - a.downvotes)
+    const diff = (b.upvotes - b.downvotes) - (a.upvotes - a.downvotes)
+    if (diff == 0) {
+      if (a._id < b._id) { return -1 }
+      return 1
+    }
+    return diff
   })
   const existing = $(`#call-${obj._id}`)
   if (existing.length) {
