@@ -196,7 +196,7 @@ function createLogEntry(obj) {
     const speedButton = $('<input type="checkbox" />');
     speedButton.on('click', handleSpeedButtonClick);
     callContent.append(speedButton);
-    callContent.append($('<label>0.5x</label>'));
+    callContent.append($('<label>0.5x speed</label>'));
 
     toggle.addClass('active')
     if (obj._id != activeCall) {
