@@ -118,12 +118,12 @@ function handleTranscriptionInput(evt) {
     return
   }
 
-  const existingTranscriptions = $(evt.target)
-    .parents('.transcriptions')
-    .find('.transcription-text')
-    .map( function() { return this.textContent} )
-    .get()
-  const isDuplicate = existingTranscriptions.includes(newTranscription)
+  const callId = getCallFromElement(evt.target)
+  const isDuplicate = calls[callId]
+    .transcriptions
+    .some(function(transcription) {
+      return transcription.text === newTranscription
+    })
 
   saveButton.attr('disabled', isDuplicate)
 }
