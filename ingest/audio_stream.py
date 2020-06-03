@@ -33,6 +33,8 @@ def poll_thread(p):
             p.kill()
 
 def stream(url, verbose=False):
+    MIN = 4 # 120ms
+    TIMEOUT = 20 # 600ms
     while True:
         cmd = ffmpeg.input(url).output('-', format='s16le', acodec='pcm_s16le', ac=1, ar='16k').compile()
         with open(os.devnull, 'w+') as devnul:
@@ -48,14 +50,19 @@ def stream(url, verbose=False):
         atexit.register(kill)
         vad = webrtcvad.Vad(0)
         chunks = []
+        count = 0
         try:
             while True:
                 chunk = p.stdout.read(480 * 2)
                 if not chunk:
-                    break
+                    count += 1
+                    if count > TIMEOUT:
+                        break
+                else:
+                    count = 0
                 if vad.is_speech(chunk, 16000):
                     chunks.append(chunk)
-                elif chunks:
+                elif len(chunks) > MIN:
                     yield b''.join(chunks)
                     chunks = []
         except Exception:
