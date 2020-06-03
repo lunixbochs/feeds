@@ -11,9 +11,9 @@ const timeFormat = {
 const timeFormatter = new Intl.DateTimeFormat('en-US', timeFormat)
 let lastTimestamp = 0
 const calls = {}
-const openCalls = {}
 const votes = {}
 var activeCall = null
+let openCall = null
 
 function renderScores() {
   var fixes = parseInt(localStorage.getItem('fixes')) || 0;
@@ -73,21 +73,14 @@ function getTranscriptionButtons(transcription) {
 
 function handleToggle(evt) {
   const clickedId = getCallFromElement(evt.target)
-  var wasOpen = [];
-  $.each(openCalls, function(callId, value) {
-    if (value && callId != clickedId) {
-      wasOpen.push(callId);
-    }
-  });
-  if (openCalls[clickedId]) {
-    activeCall = null;
+  if (openCall === clickedId) {
+    openCall = null;
+  } else {
+    const oldOpen = openCall
+    openCall = clickedId
+    handleLogEntry(calls[oldOpen]) // Close the old one
   }
-  openCalls[clickedId] = !openCalls[clickedId]
-  handleLogEntry(calls[clickedId]) // Refresh the UI.
-  $.each(wasOpen, function(idx, callId) {
-    openCalls[callId] = false;
-    handleLogEntry(calls[callId]);
-  });
+  handleLogEntry(calls[clickedId]) // Refresh the for the clicked call
 }
 
 function handleVote(evt) {
@@ -167,7 +160,7 @@ function createLogEntry(obj) {
   const toggle = $('<div class="buttons button toggle">🔊</div>')
   const time = $('<time />').text(timeFormatter.format(new Date(obj.ts * 1000)).replace(', ', ' '))
   const callContent = $('<div class="message" />')
-  if (openCalls[obj._id]) {
+  if (openCall === obj._id) {
     // Build up a list of transcriptions and links for them.
     const tList = $('<ul class="transcriptions" />')
     $.each(obj.transcriptions, function(_idx, transcription) {
@@ -224,7 +217,7 @@ function updateLogEntry(existing, obj) {
   // already-open entries... unless we're closing the entry.
   const t = existing.find('.transcriptions')
   const newEntry = createLogEntry(obj)
-  if (t.length > 0 && openCalls[obj._id]) {
+  if (t.length > 0 && openCall === obj._id) {
     t.replaceWith(newEntry.find('.transcriptions'))
   } else {
     existing.replaceWith(newEntry)
@@ -236,6 +229,7 @@ function addLogEntry(obj) {
 }
 
 function handleLogEntry(obj, userText) {
+  if (!obj) { return }
   if (userText) {
     const userTranscription = obj.transcriptions.find( t => t.text === userText )
     if (userTranscription) {
