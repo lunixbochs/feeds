@@ -118,6 +118,7 @@ function handleVote(evt) {
 function handleTranscriptionInput(evt) {
   const newTranscription = $(evt.target).val()
   const saveButton = $(evt.target).parent().find('button')
+  evt.target.style.height = evt.target.scrollHeight + 'px'
 
   if (newTranscription.length < 3) {
     saveButton.attr('disabled', true)
@@ -138,7 +139,7 @@ function handleCustomTranscription(evt) {
   if (evt.preventDefault) { evt.preventDefault() }
   $(evt.target).find('button').attr('disabled', true) // prevent repeat submission
   const callId = getCallFromElement(evt.target)
-  const newTranscription = $(evt.target).find('input').val()
+  const newTranscription = $(evt.target).find('textarea').val()
 
   var fixes = parseInt(localStorage.getItem('fixes')) || 0;
   window.localStorage.setItem('fixes', ++fixes);
@@ -184,8 +185,8 @@ function createLogEntry(obj) {
     // The manual transcription entry form
     const customTranscription = $('<div class="custom-entry" />')
     const customForm = $('<form />')
-    const customEntry = $('<input type="text" />')
-    customEntry.attr('value', obj.transcriptions[0].text)
+    const customEntry = $('<textarea wrap="soft" rows="2" />')
+    customEntry.text(obj.transcriptions[0].text)
     customEntry.on('input', handleTranscriptionInput)
     customForm.append($('<button disabled submit>Save</button>'))
     customForm.append(customEntry)
