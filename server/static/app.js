@@ -195,7 +195,6 @@ function createLogEntry(obj) {
 
     const speedButton = $('<input type="checkbox" />');
     speedButton.on('click', handleSpeedButtonClick);
-    //speedButton.append($('<label>0.5x</label>'));
     callContent.append(speedButton);
     callContent.append($('<label>0.5x</label>'));
 
