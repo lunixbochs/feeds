@@ -146,6 +146,17 @@ function handleCustomTranscription(evt) {
   }).done( (res) => handleLogEntry(res, newTranscription) ).fail(handleApiError)
 }
 
+function handleSpeedButtonClick(evt) {
+  const audio = $(evt.target).parent().find('audio');
+  const speedButton = $(evt.target).parent().find('input[type="checkbox"]');
+  if(speedButton.prop('checked')) { 
+    audio[0].playbackRate = 0.5;
+  } else {
+    audio[0].playbackRate = 1.0;
+  }
+}
+
+
 function createLogEntry(obj) {
   const logEntry = $('<li class="call" />')
   logEntry.attr('id', `call-${obj._id}`)
@@ -181,6 +192,12 @@ function createLogEntry(obj) {
     const audio = $('<audio controls />')
     audio.attr('src', obj.audio_url);
     callContent.append(audio);
+
+    const speedButton = $('<input type="checkbox" />');
+    speedButton.on('click', handleSpeedButtonClick);
+    //speedButton.append($('<label>0.5x</label>'));
+    callContent.append(speedButton);
+    callContent.append($('<label>0.5x</label>'));
 
     toggle.addClass('active')
     if (obj._id != activeCall) {
