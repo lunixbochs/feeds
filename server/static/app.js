@@ -135,6 +135,15 @@ function handleTranscriptionInput(evt) {
   saveButton.attr('disabled', isDuplicate)
 }
 
+function handleTranscriptionInputKeydown(evt) {
+  if (evt.which === 13) {
+    // The user pressed enter, treat this as a submission and don't pass the
+    // newline through.
+    if (evt.preventDefault) { evt.preventDefault() }
+    $(evt.target).parent().submit()
+  }
+}
+
 function handleCustomTranscription(evt) {
   if (evt.preventDefault) { evt.preventDefault() }
   $(evt.target).find('button').attr('disabled', true) // prevent repeat submission
@@ -188,6 +197,10 @@ function createLogEntry(obj) {
     const customEntry = $('<textarea wrap="soft" rows="2" />')
     customEntry.text(obj.transcriptions[0].text)
     customEntry.on('input', handleTranscriptionInput)
+    // We use keyup (exclusively) to catch pressing enter. We can't use it for
+    // our general input handler because that wouldn't catch certain mouse
+    // actions, etc.
+    customEntry.on('keydown', handleTranscriptionInputKeydown)
     customForm.append($('<button disabled submit>Save</button>'))
     customForm.append(customEntry)
     customTranscription.append(customForm)
