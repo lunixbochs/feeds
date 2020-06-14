@@ -111,7 +111,6 @@ function handleVote(evt) {
 function handleTranscriptionInput(evt) {
   const newTranscription = $(evt.target).val()
   const saveButton = $(evt.target).parent().find('button')
-  evt.target.style.height = evt.target.scrollHeight + 'px'
 
   if (newTranscription.length < 3) {
     saveButton.attr('disabled', true)
@@ -187,7 +186,7 @@ function createLogEntry(obj) {
     // The manual transcription entry form
     const customTranscription = $('<div class="custom-entry" />')
     const customForm = $('<form />')
-    const customEntry = $('<textarea wrap="soft" rows="2" />')
+    const customEntry = $('<textarea wrap="soft" rows="3" />')
     customEntry.text(obj.transcriptions[0].text)
     customEntry.on('input', handleTranscriptionInput)
     // We use keyup (exclusively) to catch pressing enter. We can't use it for
