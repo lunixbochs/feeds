@@ -42,4 +42,4 @@ def setup_indexes():
             kwargs = {}
             if not isinstance(index, list):
                 index = [index]
-            col.ensure_index(index, background=True, **kwargs)
+            col.create_index(index, background=True, **kwargs)
